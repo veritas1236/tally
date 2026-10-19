@@ -15,8 +15,8 @@
 <title>Tally</title>
 <link rel="stylesheet" href="fonts.css">
 <script>window.TALLY_MODE = "cloud";</script>
-<script src="firebase-config.js?v=60524f2f4e"></script>
-<script src="cloud.js?v=60524f2f4e"></script>
+<script src="firebase-config.js?v=937142af23"></script>
+<script src="cloud.js?v=937142af23"></script>
 <style>
 /* Layout: a quiet text sidebar beside one centered reading column; Calendar swaps the column for a month grid with a day agenda. */
 :root{
@@ -988,10 +988,12 @@ function renderList(){
   const allOpen = tasks.filter(t => !t.done), done = tasks.filter(t => t.done).sort((a,b) => (b.completedAt||0) - (a.completedAt||0));
   const rows = arr => arr.map(t => rowHtml(t, {showList, drag:true})).join("");
   // starred tasks get their own section at the very top (not needed in the Starred view itself)
-  const pinned = ui.view === "starred" && !searching ? [] : sortOpen(allOpen.filter(t => t.important));
+  // in Today, every starred task shows up top, whatever its date or list
+  const pinned = ui.view === "starred" && !searching ? []
+    : sortOpen((ui.view === "today" && !searching ? S.tasks.filter(t => !t.done) : allOpen).filter(t => t.important));
   const openT = pinned.length ? allOpen.filter(t => !t.important) : allOpen;
   let h = pinned.length ? starredHtml(pinned, rows) : "";
-  if (!tasks.length) {
+  if (!tasks.length && !pinned.length) {
     const msg = searching ? ["Nothing found", `No tasks match “${esc(ui.q)}”.`]
       : ui.view === "today" ? ["A clear day", "Add something above, or plan tasks for today in the Planner."]
       : ui.view === "upcoming" ? ["Nothing scheduled", "Tasks with a due date show up here."]
@@ -1011,7 +1013,7 @@ function renderList(){
     if (groups) {
       const sorted = ui.view === "upcoming" ? openT.slice().sort((a,b) => a.due.localeCompare(b.due) || b.created - a.created) : sortOpen(openT);
       for (const [name, fn, cls] of groups) { const g = sorted.filter(fn); if (g.length) h += `<div class="group ${cls||""}">${name}</div>${rows(g)}`; }
-    } else h += (pinned.length && openT.length ? `<div class="group">Everything else</div>` : "") + rows(sortOpen(openT));
+    } else h += (pinned.length && openT.length ? `<div class="group">${ui.view === "today" ? "Today" : "Everything else"}</div>` : "") + rows(sortOpen(openT));
     if (done.length) {
       h += `<button class="done-toggle ${ui.showDone?"":"closed"}" id="doneToggle">${icon("i-chev")}Completed · ${done.length}</button>`;
       if (ui.showDone) h += rows(done);
