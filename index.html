@@ -15,8 +15,8 @@
 <title>Tally</title>
 <link rel="stylesheet" href="fonts.css">
 <script>window.TALLY_MODE = "cloud";</script>
-<script src="firebase-config.js?v=937142af23"></script>
-<script src="cloud.js?v=937142af23"></script>
+<script src="firebase-config.js?v=67380f8e42"></script>
+<script src="cloud.js?v=67380f8e42"></script>
 <style>
 /* Layout: a quiet text sidebar beside one centered reading column; Calendar swaps the column for a month grid with a day agenda. */
 :root{
@@ -171,6 +171,8 @@ button.chip:hover,.chip-sel:hover{color:var(--fg)}
 .row:hover{background:var(--hover)}
 .row[draggable=true]{cursor:default}
 .row.dragging{opacity:.4}
+.row.drop-before{box-shadow:inset 0 2px 0 var(--accent)}
+.row.drop-after{box-shadow:inset 0 -2px 0 var(--accent)}
 .check{margin-top:2px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .15s,border-color .15s}
 .check:hover{border-color:var(--c,var(--fg));color:var(--c,var(--fg))}
 .check svg{width:11px;height:11px;stroke-width:3}
@@ -966,7 +968,15 @@ function renderMain(){
   renderPop();
 }
 
-function sortOpen(arr){ return arr.slice().sort((a,b) => (b.important - a.important) || ((a.due||"9") < (b.due||"9") ? -1 : (a.due||"9") > (b.due||"9") ? 1 : 0) || (b.created - a.created)); }
+// tasks you've dragged into place keep that order; the rest sort automatically above them
+const manual = cmp => (a, b) => {
+  const ao = a.order ?? null, bo = b.order ?? null;
+  if (ao === null && bo === null) return cmp(a, b);
+  if (ao === null) return -1;
+  if (bo === null) return 1;
+  return (ao - bo) || cmp(a, b);
+};
+function sortOpen(arr){ return arr.slice().sort(manual((a,b) => (b.important - a.important) || ((a.due||"9") < (b.due||"9") ? -1 : (a.due||"9") > (b.due||"9") ? 1 : 0) || (b.created - a.created))); }
 
 function renderList(){
   const searching = !!ui.q;
@@ -987,12 +997,13 @@ function renderList(){
   const showList = searching || !!SMART[ui.view];
   const allOpen = tasks.filter(t => !t.done), done = tasks.filter(t => t.done).sort((a,b) => (b.completedAt||0) - (a.completedAt||0));
   const rows = arr => arr.map(t => rowHtml(t, {showList, drag:true})).join("");
+  const grp = arr => `<div class="grp">${rows(arr)}</div>`;   // one draggable group
   // starred tasks get their own section at the very top (not needed in the Starred view itself)
   // in Today, every starred task shows up top, whatever its date or list
   const pinned = ui.view === "starred" && !searching ? []
     : sortOpen((ui.view === "today" && !searching ? S.tasks.filter(t => !t.done) : allOpen).filter(t => t.important));
   const openT = pinned.length ? allOpen.filter(t => !t.important) : allOpen;
-  let h = pinned.length ? starredHtml(pinned, rows) : "";
+  let h = pinned.length ? starredHtml(pinned, grp) : "";
   if (!tasks.length && !pinned.length) {
     const msg = searching ? ["Nothing found", `No tasks match “${esc(ui.q)}”.`]
       : ui.view === "today" ? ["A clear day", "Add something above, or plan tasks for today in the Planner."]
@@ -1011,9 +1022,9 @@ function renderList(){
       ["From earlier", t => !(t.due && t.due < t0) && t.plan && t.plan < t0 && t.due !== t0],
       ["Today", t => !(t.due && t.due < t0) && !(t.plan && t.plan < t0 && t.due !== t0)]];
     if (groups) {
-      const sorted = ui.view === "upcoming" ? openT.slice().sort((a,b) => a.due.localeCompare(b.due) || b.created - a.created) : sortOpen(openT);
-      for (const [name, fn, cls] of groups) { const g = sorted.filter(fn); if (g.length) h += `<div class="group ${cls||""}">${name}</div>${rows(g)}`; }
-    } else h += (pinned.length && openT.length ? `<div class="group">${ui.view === "today" ? "Today" : "Everything else"}</div>` : "") + rows(sortOpen(openT));
+      const sorted = ui.view === "upcoming" ? openT.slice().sort(manual((a,b) => a.due.localeCompare(b.due) || b.created - a.created)) : sortOpen(openT);
+      for (const [name, fn, cls] of groups) { const g = sorted.filter(fn); if (g.length) h += `<div class="group ${cls||""}">${name}</div>${grp(g)}`; }
+    } else h += (pinned.length && openT.length ? `<div class="group">${ui.view === "today" ? "Today" : "Everything else"}</div>` : "") + grp(sortOpen(openT));
     if (done.length) {
       h += `<button class="done-toggle ${ui.showDone?"":"closed"}" id="doneToggle">${icon("i-chev")}Completed · ${done.length}</button>`;
       if (ui.showDone) h += rows(done);
@@ -1025,10 +1036,11 @@ function renderList(){
 function starredHtml(list, rows){ return `<div class="group starred">${icon("i-star")}Starred</div>${rows(list)}`; }
 function plannerListHtml(){
   const t0 = today(), t1 = addDays(1);
-  const rows = arr => arr.map(t => rowHtml(t, {showList:true, drag:true, kind:"plan"})).join("");
+  const rows0 = arr => arr.map(t => rowHtml(t, {showList:true, drag:true, kind:"plan"})).join("");
+  const rows = arr => `<div class="grp">${rows0(arr)}</div>`;
   const pinned = sortOpen(S.tasks.filter(t => !t.done && t.important));
   const open = S.tasks.filter(t => !t.done && !t.important);
-  const ord = (a,b) => (b.important - a.important) || ((a.due||"9") < (b.due||"9") ? -1 : (a.due||"9") > (b.due||"9") ? 1 : 0) || (a.created - b.created);
+  const ord = manual((a,b) => (b.important - a.important) || ((a.due||"9") < (b.due||"9") ? -1 : (a.due||"9") > (b.due||"9") ? 1 : 0) || (a.created - b.created));
   const byDay = {};
   for (const t of open) { const d = doDay(t); if (d) (byDay[d] ||= []).push(t); }
   let h = pinned.length ? starredHtml(pinned, rows) : "";
@@ -1548,29 +1560,54 @@ main.addEventListener("focusout", e => {
 });
 
 /* drag: onto a calendar day to reschedule, onto a list to move */
-let dragId = null, dragKind = "due";
+let dragId = null, dragKind = "due", dragGrp = null;
+function reorder(grpEl, id, targetId, after){
+  const ids = [...grpEl.querySelectorAll(":scope > .row")].map(r => r.dataset.id).filter(x => x !== id);
+  let i = ids.indexOf(targetId); if (i < 0) return;
+  if (after) i++;
+  ids.splice(i, 0, id);
+  ids.forEach((x, k) => { const t = taskById(x); if (t) t.order = (k + 1) * 10; });
+  commit();
+}
 function planFor(id, day){
   const t = taskById(id); if (!t) return;
   t.plan = day; commit();
   toast(`Planned “${t.title}” for ${lc(dueLabel(day).text)}` + (t.due && day > t.due ? `. Heads up: it's due ${lc(dueLabel(t.due).text)}.` : ""));
 }
-const clearDrop = () => document.querySelectorAll(".drop").forEach(x => x.classList.remove("drop"));
+const clearDrop = () => document.querySelectorAll(".drop,.drop-before,.drop-after").forEach(x => x.classList.remove("drop", "drop-before", "drop-after"));
 document.addEventListener("dragstart", e => {
   const el = e.target.closest?.(".ev,.pick,.row[draggable=true]"); if (!el) return;
   dragId = el.dataset.id; e.dataTransfer.effectAllowed = "move";
   dragKind = el.dataset.kind || (($("#calMode").hidden ? "due" : calKind()));
+  dragGrp = el.parentElement?.classList.contains("grp") ? el.parentElement : null;
   try { e.dataTransfer.setData("text/plain", taskById(dragId)?.title || ""); } catch(x){}
   el.classList.add("dragging");
 });
-document.addEventListener("dragend", e => { dragId = null; clearDrop(); document.querySelectorAll(".dragging").forEach(x => x.classList.remove("dragging")); });
+document.addEventListener("dragend", e => { dragId = null; dragGrp = null; clearDrop(); document.querySelectorAll(".dragging").forEach(x => x.classList.remove("dragging")); });
 document.addEventListener("dragover", e => {
   if (!dragId) return;
+  const row = dragGrp && e.target.closest?.(".row");
+  if (row && row.parentElement === dragGrp) {           // reorder inside the same group
+    clearDrop(); e.preventDefault(); e.dataTransfer.dropEffect = "move";
+    if (row.dataset.id === dragId) return;
+    const r = row.getBoundingClientRect();
+    row.classList.add(e.clientY > r.top + r.height / 2 ? "drop-after" : "drop-before");
+    return;
+  }
   const tgt = e.target.closest?.(".cell,.day-drop,[data-list]"); clearDrop();
   if (!tgt) return;
   e.preventDefault(); e.dataTransfer.dropEffect = "move"; tgt.classList.add("drop");
 });
 document.addEventListener("drop", e => {
   if (!dragId) return;
+  const row = dragGrp && e.target.closest?.(".row");
+  if (row && row.parentElement === dragGrp) {
+    e.preventDefault();
+    const after = row.classList.contains("drop-after"), id = dragId, g = dragGrp;
+    dragId = null; dragGrp = null; clearDrop();
+    if (row.dataset.id !== id) reorder(g, id, row.dataset.id, after);
+    return;
+  }
   const t = taskById(dragId), tgt = e.target.closest?.(".cell,.day-drop,[data-list]");
   dragId = null; clearDrop();
   if (!t || !tgt) return;
