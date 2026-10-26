@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#101114" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f4fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0d16" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tally">
@@ -15,27 +15,27 @@
 <title>Tally</title>
 <link rel="stylesheet" href="fonts.css">
 <script>window.TALLY_MODE = "cloud";</script>
-<script src="firebase-config.js?v=67380f8e42"></script>
-<script src="cloud.js?v=67380f8e42"></script>
+<script src="firebase-config.js?v=fb0c9f51f4"></script>
+<script src="cloud.js?v=fb0c9f51f4"></script>
 <style>
 /* Layout: a quiet text sidebar beside one centered reading column; Calendar swaps the column for a month grid with a day agenda. */
 :root{
-  --bg:#f4f5f7; --panel:#ffffff; --sunk:#eef0f3; --hover:rgba(20,24,33,.035);
-  --fg:#15171c; --muted:#7a808c; --faint:#b3b8c1; --line:#e6e8ec;
-  --accent:#3552f2; --accent-soft:#eaeeff; --star:#e3a008; --danger:#d4473d;
-  --shadow:0 14px 36px -16px rgba(16,24,40,.25),0 2px 6px -2px rgba(16,24,40,.06);
+  --bg:#f3f4fa; --panel:#ffffff; --sunk:#eff0f7; --hover:rgba(40,40,90,.04);
+  --fg:#14152b; --muted:#6f7290; --faint:#aeb1c7; --line:#e8e9f3;
+  --accent:#6366f1; --accent2:#a855f7; --accent-soft:#eef0ff; --star:#f59e0b; --danger:#ef4444;
+  --shadow:0 18px 40px -18px rgba(40,40,110,.28),0 2px 8px -3px rgba(40,40,110,.08);
   --display:var(--body);
-  --body:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#101114; --panel:#16171b; --sunk:#202227; --hover:rgba(255,255,255,.03);
-  --fg:#eceef2; --muted:#8c929e; --faint:#545a65; --line:#25272d;
-  --accent:#8ea0ff; --accent-soft:#232947; --star:#f4c24f; --danger:#ff7b70;
+  --bg:#0c0d16; --panel:#12131f; --sunk:#1c1d2c; --hover:rgba(255,255,255,.04);
+  --fg:#eceefa; --muted:#9093b0; --faint:#555872; --line:#222438;
+  --accent:#818cf8; --accent2:#c084fc; --accent-soft:#25264a; --star:#fbbf24; --danger:#f87171;
   --shadow:0 18px 40px -16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.02); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#101114; --panel:#16171b; --sunk:#202227; --hover:rgba(255,255,255,.03);
-  --fg:#eceef2; --muted:#8c929e; --faint:#545a65; --line:#25272d;
-  --accent:#8ea0ff; --accent-soft:#232947; --star:#f4c24f; --danger:#ff7b70;
+  --bg:#0c0d16; --panel:#12131f; --sunk:#1c1d2c; --hover:rgba(255,255,255,.04);
+  --fg:#eceefa; --muted:#9093b0; --faint:#555872; --line:#222438;
+  --accent:#818cf8; --accent2:#c084fc; --accent-soft:#25264a; --star:#fbbf24; --danger:#f87171;
   --shadow:0 18px 40px -16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.02); color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
@@ -352,6 +352,72 @@ html{-webkit-tap-highlight-color:transparent}
   .search input,.newlist input,.adder input[type=text],.step input,.add-step input,.e-notes{font-size:16px}
 }
 
+/* ---------- color layer ---------- */
+.brand em{background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand{font-weight:800}
+.side{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 70%,#e9e7ff) 0%,var(--bg) 45%)}
+.nav-item{border-radius:10px;padding:6px 10px;gap:10px}
+.nav-item .tile{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:none;
+  background:linear-gradient(135deg,var(--c),var(--c2,var(--c)));box-shadow:0 3px 8px -3px color-mix(in srgb,var(--c) 70%,transparent)}
+.nav-item .tile svg.i{width:14px;height:14px;stroke-width:2}
+.nav-item.on{background:color-mix(in srgb,var(--c,var(--accent)) 13%,var(--panel));box-shadow:none;color:var(--fg)}
+.nav-item.on .n{color:color-mix(in srgb,var(--c,var(--accent)) 80%,var(--fg))}
+.nav-item .dot{width:10px;height:10px;border-radius:4px;margin:0 7px}
+.nav-item .dot.pick{width:24px;height:24px;margin:0;border-radius:8px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#a855f7));box-shadow:0 3px 8px -3px color-mix(in srgb,var(--c) 70%,transparent)}
+.nav-item .dot.pick::after{width:8px;height:8px;border-radius:3px;background:rgba(255,255,255,.92)}
+.nav-item .dot.pick:hover{background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#a855f7))}
+.nav-item .ico-c{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#a855f7))}
+.nav-item .ico-c svg.i{width:14px;height:14px;stroke-width:2}
+.search{border-radius:11px;background:color-mix(in srgb,var(--panel) 75%,transparent);box-shadow:inset 0 0 0 1px var(--line)}
+.main{position:relative;border-left:0;border-radius:0;overflow:hidden}
+.main::before{content:"";position:absolute;left:0;right:0;top:0;height:260px;pointer-events:none;z-index:0;
+  background:radial-gradient(55% 100% at 18% 0%,color-mix(in srgb,var(--accent) 17%,transparent),transparent 72%),
+             radial-gradient(45% 90% at 88% 0%,color-mix(in srgb,var(--accent2) 13%,transparent),transparent 70%);
+  transition:background .4s}
+.main>*{position:relative;z-index:1}
+.top{align-items:center}
+.vtile{width:52px;height:52px;border-radius:16px;flex:none;display:grid;place-items:center;color:#fff;align-self:flex-start;margin-top:2px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 22px -10px color-mix(in srgb,var(--accent) 80%,transparent)}
+.vtile svg.i{width:26px;height:26px;stroke-width:1.9}
+.title{font-weight:800;letter-spacing:-.035em}
+.sub{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prog{display:inline-block;width:90px;height:6px;border-radius:99px;background:color-mix(in srgb,var(--accent) 14%,var(--sunk));overflow:hidden;vertical-align:middle}
+.prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+.seg{background:color-mix(in srgb,var(--panel) 70%,var(--sunk));box-shadow:inset 0 0 0 1px var(--line)}
+.seg button.on{color:var(--accent);box-shadow:0 2px 6px -2px rgba(40,40,110,.2)}
+.adder{border-bottom:0;margin:4px 0 6px;padding:10px 14px;border-radius:14px;background:color-mix(in srgb,var(--panel) 80%,transparent);box-shadow:inset 0 0 0 1px var(--line)}
+.adder:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent),0 6px 18px -10px color-mix(in srgb,var(--accent) 70%,transparent)}
+.row{border-bottom:0;border-radius:12px;padding:11px 10px;margin:1px -4px}
+.row:hover{background:color-mix(in srgb,var(--c,var(--accent)) 7%,transparent)}
+.check{border-width:2px;border-color:color-mix(in srgb,var(--c,var(--accent)) 55%,var(--faint))}
+.done>.check,.done>.e-head>.check{background:linear-gradient(135deg,var(--c,var(--accent)),color-mix(in srgb,var(--c,var(--accent)) 55%,#ec4899))}
+.check svg{transition:transform .18s}
+.done>.check svg{animation:pop .22s ease-out}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.group{font-weight:700;letter-spacing:.08em;color:color-mix(in srgb,var(--accent) 55%,var(--faint));padding-top:22px}
+.group.late{color:var(--danger)}
+.group.starred{color:var(--star)}
+.row.open{border-radius:20px;border-color:color-mix(in srgb,var(--c,var(--accent)) 25%,var(--line));
+  box-shadow:0 24px 50px -24px color-mix(in srgb,var(--c,var(--accent)) 45%,transparent),0 2px 8px -3px rgba(40,40,110,.08);margin:10px -14px}
+.chip{border-radius:10px}
+.chip.on{background:color-mix(in srgb,var(--accent) 13%,var(--panel));color:color-mix(in srgb,var(--accent) 85%,var(--fg))}
+.chip.plan{background:color-mix(in srgb,#8b5cf6 13%,var(--panel));color:color-mix(in srgb,#8b5cf6 85%,var(--fg))}
+.chip.sun{background:color-mix(in srgb,#f97316 12%,var(--panel));color:color-mix(in srgb,#f97316 85%,var(--fg))}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn.ghost{background:var(--panel);color:var(--fg)}
+.btn.warn{background:none;color:var(--danger)}
+.banner{border-radius:14px;background:color-mix(in srgb,var(--accent) 9%,var(--panel));color:color-mix(in srgb,var(--accent) 50%,var(--muted))}
+.grid{border-radius:18px}
+.cell.today .dn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.cell.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.ev{border-radius:7px}
+.empty h3{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pick .add{border-radius:9px}
+.sheet,.auth-card{border-radius:22px}
+.toast{border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 80%,#14152b),color-mix(in srgb,var(--accent2) 70%,#14152b));color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side{background:linear-gradient(180deg,#141530 0%,var(--bg) 50%)}}
+:root[data-theme="dark"] .side{background:linear-gradient(180deg,#141530 0%,var(--bg) 50%)}
+
 .scrim{display:none}
 @media (max-width:1100px){
   .cal-split{flex:none;grid-template-columns:minmax(0,1fr);gap:24px}
@@ -368,6 +434,10 @@ html{-webkit-tap-highlight-color:transparent}
   .app.side-open .side{transform:none}
   .app.side-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:45}
   .top .menu-btn{display:grid;margin:2px 0 0 -6px;align-self:flex-start}
+  .vtile{width:40px;height:40px;border-radius:13px}
+  .tools:has(#modeSeg[hidden]){flex-basis:auto;align-self:flex-start}
+  .vtile svg.i{width:20px;height:20px}
+  .main{border-radius:0}
   .top{align-items:center;gap:10px 10px}
   .heading{flex:1 1 0;min-width:0}
   .tools{flex-basis:100%;padding-bottom:0}
@@ -440,6 +510,7 @@ html{-webkit-tap-highlight-color:transparent}
   <main class="main" id="main">
     <header class="top">
       <button class="ib menu-btn" id="menuBtn" aria-label="Show lists"><svg class="i"><use href="#i-menu"/></svg></button>
+      <div class="vtile" id="vtile" aria-hidden="true"></div>
       <div class="heading">
         <input class="title" id="title" aria-label="List name" maxlength="60" readonly>
         <div class="sub" id="sub"></div>
@@ -599,11 +670,11 @@ const LEGACY = {myday:"today", planned:"upcoming", important:"starred"};
 if (LEGACY[ui.view]) ui.view = LEGACY[ui.view];
 
 const SMART = {
-  today:    {name:"Today",     icon:"i-sun",      match:t => t.plan === today() || t.due === today() || (!t.done && ((!!t.due && t.due < today()) || (!!t.plan && t.plan < today())))},
-  planner:  {name:"Planner",   icon:"i-plan",     match:t => !!(t.plan || t.due)},
-  upcoming: {name:"Upcoming",  icon:"i-upcoming", match:t => !!t.due},
-  starred:  {name:"Starred",   icon:"i-star",     match:t => t.important},
-  all:      {name:"All tasks", icon:"i-stack",    match:() => true},
+  today:    {name:"Today",     icon:"i-sun",      c:"#f97316", c2:"#f43f5e",      match:t => t.plan === today() || t.due === today() || (!t.done && ((!!t.due && t.due < today()) || (!!t.plan && t.plan < today())))},
+  planner:  {name:"Planner",   icon:"i-plan",     c:"#8b5cf6", c2:"#ec4899",     match:t => !!(t.plan || t.due)},
+  upcoming: {name:"Upcoming",  icon:"i-upcoming", c:"#0ea5e9", c2:"#6366f1", match:t => !!t.due},
+  starred:  {name:"Starred",   icon:"i-star",     c:"#f59e0b", c2:"#f97316",     match:t => t.important},
+  all:      {name:"All tasks", icon:"i-stack",    c:"#14b8a6", c2:"#0ea5e9",    match:() => true},
 };
 const listById = id => S.lists.find(l => l.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
@@ -919,7 +990,7 @@ function renderNav(){
   for (const [k, v] of Object.entries(SMART)) {
     const n = k === "planner" ? 0 : viewTasks(k).filter(open).length;
     const late = k === "today" && S.tasks.some(t => !t.done && t.due && t.due < today());
-    h += `<button class="nav-item ${on(k)?"on":""}" data-view="${k}">${icon(v.icon)}<span class="nm">${v.name}</span><span class="n ${late?"late":""}">${n||""}</span></button>`;
+    h += `<button class="nav-item ${on(k)?"on":""}" data-view="${k}" style="--c:${v.c};--c2:${v.c2}"><span class="tile">${icon(v.icon)}</span><span class="nm">${v.name}</span><span class="n ${late?"late":""}">${n||""}</span></button>`;
   }
   h += `<div class="nav-label">Lists</div>`;
   for (const l of S.lists) {
@@ -933,6 +1004,10 @@ function renderNav(){
 }
 
 const DEFAULT_INBOX = "#6b7280";
+function viewColors(v){
+  if (SMART[v]) return [SMART[v].c, SMART[v].c2];
+  const c = listAccent(v); return c ? [c, `color-mix(in srgb, ${c} 55%, #a855f7)`] : null;
+}
 function listAccent(v){
   const l = !SMART[v] && listById(v);
   if (!l || (l.id === "inbox" && l.color === DEFAULT_INBOX)) return null;
@@ -941,9 +1016,10 @@ function listAccent(v){
 function renderMain(){
   const searching = !!ui.q, planner = ui.view === "planner" && !searching;
   const cal = planner ? ui.plannerMode === "cal" : (ui.mode === "cal" && !searching && ui.view !== "today");
-  const acc = searching ? null : listAccent(ui.view), m = $("#main");
-  if (acc) { m.style.setProperty("--accent", acc); m.style.setProperty("--accent-soft", `color-mix(in srgb, ${acc} 15%, var(--panel))`); }
-  else { m.style.removeProperty("--accent"); m.style.removeProperty("--accent-soft"); }
+  const vc = searching ? null : viewColors(ui.view), m = $("#main");
+  if (vc) { m.style.setProperty("--accent", vc[0]); m.style.setProperty("--accent2", vc[1]); m.style.setProperty("--accent-soft", `color-mix(in srgb, ${vc[0]} 15%, var(--panel))`); }
+  else { m.style.removeProperty("--accent"); m.style.removeProperty("--accent2"); m.style.removeProperty("--accent-soft"); }
+  $("#vtile").innerHTML = icon(searching ? "i-search" : SMART[ui.view] ? SMART[ui.view].icon : ui.view === "inbox" ? "i-inbox" : "i-rows");
   $("#main").classList.toggle("is-cal", cal);
   const title = $("#title"), custom = !searching && isCustom(ui.view);
   if (document.activeElement !== title) title.value = searching ? "Search" : viewName(ui.view);
@@ -959,7 +1035,11 @@ function renderMain(){
   else if (planner) sub = touch ? (cal ? "What you're doing each day. Tap a day to plan it." : "What you're doing each day. Tap a task, then Plan a day.")
     : cal ? "What you're doing each day. Drag tasks onto a day, or pick a day and plan it." : "What you're doing each day. Drag a task onto a day to plan it.";
   else if (cal) sub = (calKind() === "plan" ? "What you plan to do · " : "When things are due · ") + (calScopeAll() ? "every list" : "only this list");
-  else if (ui.view === "today") sub = new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"}) + (open ? ` · ${open} to do` : "");
+  else if (ui.view === "today") {
+    const total = vt.length, doneN = total - open;
+    sub = `<span>${new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"})}${open ? ` · ${open} to do` : total ? " · all done" : ""}</span>`
+      + (total ? `<span class="prog" title="${doneN} of ${total} done"><i style="width:${Math.round(doneN / total * 100)}%"></i></span>` : "");
+  }
   else sub = open ? `${open} to do` : (vt.length ? "All done" : "");
   if (!searching && !cal && late && ui.view !== "today") sub += ` · <b>${late} overdue</b>`;
   $("#sub").innerHTML = sub;
@@ -1106,7 +1186,7 @@ function rowHtml(t, {showList=false, drag=false, kind=""} = {}){
 
 function cardHtml(t){
   const l = listById(t.listId);
-  const pl = t.plan ? (t.plan === today() ? "Doing today" : "Do " + dueLabel(t.plan).text) : "Plan a day";
+  const pl = t.plan ? (t.plan === today() ? "Doing today" : "Do " + lc(dueLabel(t.plan).text)) : "Plan a day";
   const d = t.due ? dueLabel(t.due) : null;
   const dueChip = t.due
     ? `<button class="chip ${!t.done && d.cls==="late" ? "late" : "on"}" data-act="pickDue" title="Due date">${icon("i-cal")}Due ${["Today","Tomorrow","Yesterday"].includes(d.text) ? d.text.toLowerCase() : d.text}<span class="x" data-act="clearDue" role="button" aria-label="Remove due date">${icon("i-x")}</span></button>`
@@ -1130,9 +1210,9 @@ function cardHtml(t){
     <div class="chips">
       ${dueChip}
       <input type="date" id="eDue" class="${ui.dueEdit ? "date-vis" : "date-hid"}" value="${t.due||""}" aria-label="Due date">
-      <button class="chip ${t.plan ? (!t.done && (t.plan < today() || (t.due && t.plan > t.due)) ? "late" : "on") : ""}" data-act="pickPlan" title="${t.due && t.plan > t.due ? "This is after it's due" : "The day you'll work on it"}">${icon(t.plan === today() ? "i-sun" : "i-plan")}${pl}${t.plan ? `<span class="x" data-act="clearPlan" role="button" aria-label="Remove do date">${icon("i-x")}</span>` : ""}</button>
+      <button class="chip ${t.plan ? (!t.done && (t.plan < today() || (t.due && t.plan > t.due)) ? "late" : "plan") : ""}" data-act="pickPlan" title="${t.due && t.plan > t.due ? "This is after it's due" : "The day you'll work on it"}">${icon(t.plan === today() ? "i-sun" : "i-plan")}${pl}${t.plan ? `<span class="x" data-act="clearPlan" role="button" aria-label="Remove do date">${icon("i-x")}</span>` : ""}</button>
       <input type="date" id="ePlan" class="${ui.planEdit ? "date-vis" : "date-hid"}" value="${t.plan||""}" aria-label="Do date">
-      ${t.plan !== today() ? `<button class="chip" data-act="planToday">${icon("i-sun")}Do today</button>` : ""}
+      ${t.plan !== today() ? `<button class="chip sun" data-act="planToday">${icon("i-sun")}Do today</button>` : ""}
       <label class="chip chip-sel" style="--c:${l?.color||COLORS[0]}"><span class="dot"></span><select id="eList" aria-label="List">${S.lists.map(x => `<option value="${x.id}" ${x.id===t.listId?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
       ${cs.chip}
     </div>

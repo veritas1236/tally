@@ -1,6 +1,6 @@
 // Keeps Tally opening when you're offline. Pages are fetched fresh when online, so updates arrive right away.
-const CACHE = "tally-67380f8e42";
-const SHELL = ["./", "index.html", "cloud.js?v=67380f8e42", "firebase-config.js?v=67380f8e42", "fonts.css", "manifest.webmanifest", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/favicon.png", "fonts/instrument-sans-latin-400-normal.woff2", "fonts/instrument-sans-latin-500-normal.woff2", "fonts/instrument-sans-latin-600-normal.woff2", "fonts/instrument-sans-latin-700-normal.woff2"];
+const CACHE = "tally-fb0c9f51f4";
+const SHELL = ["./", "index.html", "cloud.js?v=fb0c9f51f4", "firebase-config.js?v=fb0c9f51f4", "fonts.css", "manifest.webmanifest", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/favicon.png", "fonts/plus-jakarta-sans-latin-400-normal.woff2", "fonts/plus-jakarta-sans-latin-500-normal.woff2", "fonts/plus-jakarta-sans-latin-600-normal.woff2", "fonts/plus-jakarta-sans-latin-700-normal.woff2", "fonts/plus-jakarta-sans-latin-800-normal.woff2"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
