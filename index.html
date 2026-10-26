@@ -7,16 +7,16 @@
 <meta name="theme-color" content="#0c0d16" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Tally">
+<meta name="apple-mobile-web-app-title" content="Orbit">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/favicon.png">
-<title>Tally</title>
+<title>Orbit</title>
 <link rel="stylesheet" href="fonts.css">
 <script>window.TALLY_MODE = "cloud";</script>
-<script src="firebase-config.js?v=8be89ed133"></script>
-<script src="cloud.js?v=8be89ed133"></script>
+<script src="firebase-config.js?v=1f808f6a11"></script>
+<script src="cloud.js?v=1f808f6a11"></script>
 <style>
 /* Layout: a quiet text sidebar beside one centered reading column; Calendar swaps the column for a month grid with a day agenda. */
 :root{
@@ -306,6 +306,9 @@ button.chip:hover,.chip-sel:hover{color:var(--fg)}
 .sheet p{margin:4px 0 10px;color:var(--muted);font-size:13.5px;max-width:62ch}
 .sheet ol{margin:6px 0 14px;padding-left:20px;color:var(--muted);font-size:13.5px;display:flex;flex-direction:column;gap:5px}
 .sheet ol b{color:var(--fg);font-weight:600}
+.mem{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.mem-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:var(--sunk);font-size:13.5px}
+.mem-row span{flex:1}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;font-size:13px;font-weight:600}
 .field input,.field select{font-weight:400;font-size:14px;width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
 .field input:focus,.field select:focus{border-color:var(--accent)}
@@ -417,6 +420,103 @@ html{-webkit-tap-highlight-color:transparent}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side{background:linear-gradient(180deg,#141530 0%,var(--bg) 50%)}}
 :root[data-theme="dark"] .side{background:linear-gradient(180deg,#141530 0%,var(--bg) 50%)}
 
+/* ---------- Orbit: assistant, notes, schedule ---------- */
+.aimode{flex:1;min-height:0;display:flex;flex-direction:column}
+.ai-scroll{flex:1;min-height:0;overflow-y:auto}
+.ai-col{max-width:780px;margin:0 auto;padding:0 48px}
+.ai-dock{padding:8px 0 22px;background:linear-gradient(transparent,var(--panel) 30%)}
+.ai-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ai-chips .chip{background:color-mix(in srgb,var(--accent) 9%,var(--panel));color:color-mix(in srgb,var(--accent) 80%,var(--fg));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent)}
+.ai-composer{display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 16px;border-radius:18px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line),0 10px 30px -18px rgba(40,40,110,.35)}
+.ai-composer:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent),0 10px 30px -14px color-mix(in srgb,var(--accent) 60%,transparent)}
+.ai-composer textarea{flex:1;min-width:0;border:0;outline:none;background:none;resize:none;font-size:15px;line-height:1.45;max-height:180px;padding:6px 0}
+.ai-send{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));flex:none}
+.ai-send:disabled{opacity:.4}
+.ai-send svg.i{width:18px;height:18px;stroke-width:2.2}
+.ai-foot{display:flex;justify-content:center;margin-top:8px;min-height:0}
+.ai-foot:empty{display:none}
+.msg-u{display:flex;justify-content:flex-end;margin:18px 0 6px}
+.msg-u div{max-width:80%;padding:10px 14px;border-radius:18px 18px 6px 18px;background:color-mix(in srgb,var(--accent) 12%,var(--panel));color:var(--fg);overflow-wrap:anywhere}
+.msg-a{margin:6px 0 10px;max-width:92%}
+.md p{margin:0 0 8px;line-height:1.55}
+.md ul,.md ol{margin:4px 0 10px;padding-left:20px;line-height:1.55}
+.md li{margin:2px 0}
+.md .md-h{font-weight:700}
+.md code{font-size:13px;background:var(--sunk);padding:1px 5px;border-radius:5px}
+.acts{display:flex;flex-direction:column;gap:2px;padding:8px 10px;margin:4px 0 10px;border-radius:14px;background:color-mix(in srgb,var(--accent) 6%,var(--panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 14%,transparent);position:relative}
+.act{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--fg);padding:2px 64px 2px 0}
+.act svg.i{width:15px;height:15px;color:var(--accent);margin-top:2px}
+.acts.undone .act{opacity:.45;text-decoration:line-through}
+.undo,.undone-l{position:absolute;top:8px;right:10px;font-size:12.5px;font-weight:600;color:var(--accent)}
+.undone-l{color:var(--muted);font-weight:500}
+.prop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;margin:4px 0 10px;border-radius:14px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line),0 8px 20px -16px rgba(40,40,110,.4)}
+.prop>svg.i{width:20px;height:20px;color:var(--accent)}
+.prop .pt{flex:1;min-width:160px;display:flex;flex-direction:column}
+.prop .pt span{font-size:13px;color:var(--muted)}
+.prop .pt em{font-style:normal;font-size:12.5px;color:var(--danger)}
+.prop .ok{font-size:13px;font-weight:600;color:#10b981}
+.prop.done{opacity:.85}
+.ai-err{color:var(--danger);font-size:13.5px;margin:4px 0}
+.typing{display:flex;gap:5px;padding:10px 2px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.35;animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.ai-hello,.ai-setup{text-align:center;padding:56px 8px 24px;max-width:520px;margin:0 auto}
+.ai-hello h3,.ai-setup h3{font-size:24px;font-weight:800;letter-spacing:-.03em;margin:14px 0 6px}
+.ai-hello p,.ai-setup p{color:var(--muted);margin:0 0 10px}
+.ai-setup ol{text-align:left;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.ai-setup ol b{color:var(--fg)}
+.ai-orb{width:56px;height:56px;margin:0 auto;border-radius:18px;display:grid;place-items:center;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.ai-orb svg.i{width:28px;height:28px}
+.ai-keyform{display:flex;gap:8px;margin:8px 0}
+.ai-keyform input{flex:1;min-width:0;background:var(--sunk);border:1px solid var(--line);border-radius:11px;padding:10px 12px;outline:none;font-size:14px}
+.ai-keyform input:focus{border-color:var(--accent)}
+.fine{font-size:12px;color:var(--faint)}
+body:has(#main.is-ai) .toast{bottom:120px}
+.brief{margin:2px 0 8px;padding:14px 16px 6px;border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,#8b5cf6 9%,var(--panel)),color-mix(in srgb,#ec4899 6%,var(--panel)));box-shadow:inset 0 0 0 1px color-mix(in srgb,#8b5cf6 16%,transparent)}
+.brief-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px}
+.brief-h svg.i{width:15px;height:15px}
+.brief-h .sp{flex:1}
+.ib.sm{width:26px;height:26px}
+.ib.sm svg.i{width:14px;height:14px}
+.brief-b{font-size:14px}
+.sched{margin:4px 0 4px}
+.sched .group{padding-top:14px}
+.sched-load{font-size:13px;color:var(--faint);padding:4px 10px 6px}
+.evrow{display:flex;align-items:baseline;gap:10px;padding:7px 10px;border-radius:10px;color:var(--fg);text-decoration:none;font-size:14px}
+.evrow:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}
+.evrow .evt{width:68px;flex:none;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.evrow i{width:3px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
+.evrow .evti{flex:1;min-width:0}
+.evrow .evti small{display:block;font-size:12px;color:var(--muted)}
+.evrow .evd{font-size:12px;color:var(--faint)}
+.cal-cta{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:11px;font-size:13px;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent);margin:6px 0}
+.cal-cta svg.i{width:15px;height:15px}
+.agenda .sched .group{padding:6px 4px 4px}
+.note-bar{display:flex;align-items:center;gap:10px;margin:2px 0 14px;flex-wrap:wrap}
+.note-bar .sp{flex:1}
+.note-search{flex:1;min-width:180px;margin:0}
+.note-bar .btn{display:inline-flex;align-items:center;gap:6px}
+.note-bar .btn svg.i{width:15px;height:15px}
+.tbtn svg.i{width:14px;height:14px;vertical-align:-2px}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 14px}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:12.5px;color:color-mix(in srgb,var(--accent) 80%,var(--fg));background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.tag.on{background:var(--accent);color:#fff}
+.note-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.note-card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:14px 16px;border-radius:16px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);min-height:120px;transition:box-shadow .15s,transform .15s}
+.note-card:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,var(--line)),0 12px 26px -18px color-mix(in srgb,var(--accent) 60%,transparent);transform:translateY(-1px)}
+.note-card b{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.note-card .snip{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.nc-foot{margin-top:auto;display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--faint)}
+.nc-foot i{font-style:normal;color:color-mix(in srgb,var(--accent) 75%,var(--fg))}
+.nc-foot em{font-style:normal;margin-left:auto}
+.note-ed{display:flex;flex-direction:column;gap:8px}
+.note-title{border:0;outline:none;background:none;font-size:24px;font-weight:800;letter-spacing:-.025em;padding:4px 0}
+.note-body{border:0;outline:none;background:none;resize:none;font-size:15px;line-height:1.65;min-height:240px;padding:0;overflow:hidden}
+.note-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--faint);padding:10px 0;border-top:1px solid var(--line)}
+.note-meta .sp{flex:1}
+.search-notes{margin-bottom:6px}
+
 .scrim{display:none}
 @media (max-width:1100px){
   .cal-split{flex:none;grid-template-columns:minmax(0,1fr);gap:24px}
@@ -448,6 +548,10 @@ html{-webkit-tap-highlight-color:transparent}
   .mac .top{padding-top:44px}
   .title{font-size:28px}
   .col{padding:0 16px 60px}
+  .ai-col{padding:0 16px}
+  .ai-dock{padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+  .note-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .note-card{min-height:100px;padding:12px}
   .calmode{padding:0 16px 20px}
   .row.open{margin:10px -8px;padding:14px}
   .chips,.steps,.e-foot,.calpanel,.cal-err{padding-left:0;margin-left:0}
@@ -473,6 +577,11 @@ html{-webkit-tap-highlight-color:transparent}
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-upcoming" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/></symbol>
   <symbol id="i-plan" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14h5M7.5 17h8"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 3.9 2.6 5.9 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.6 5.9-2.6 6.5-6.5z"/><path d="M18.5 15.5c.2 1.4.9 2.1 2.3 2.3-1.4.2-2.1.9-2.3 2.3-.2-1.4-.9-2.1-2.3-2.3 1.4-.2 2.1-.9 2.3-2.3z"/></symbol>
+  <symbol id="i-notes" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v11.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M14 3.5V8h5M8.5 12.5h7M8.5 16h5"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></symbol>
@@ -494,7 +603,7 @@ html{-webkit-tap-highlight-color:transparent}
 
 <div class="app" id="app">
   <aside class="side" id="side" aria-label="Lists">
-    <div class="side-top"><span class="brand">tally<em>.</em></span></div>
+    <div class="side-top"><span class="brand">orbit<em>.</em></span></div>
     <label class="search"><svg class="i"><use href="#i-search"/></svg><input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false"></label>
     <nav class="nav" id="nav"></nav>
     <form class="newlist" id="newListForm"><svg class="i"><use href="#i-plus"/></svg><input id="newListInput" placeholder="New list" maxlength="60" autocomplete="off"></form>
@@ -519,6 +628,7 @@ html{-webkit-tap-highlight-color:transparent}
           <button data-mode="list"><svg class="i"><use href="#i-rows"/></svg>List</button>
           <button data-mode="cal"><svg class="i"><use href="#i-cal"/></svg>Calendar</button>
         </div>
+        <button class="ib" id="aiNew" hidden title="New chat" aria-label="New chat"><svg class="i"><use href="#i-edit"/></svg></button>
         <button class="ib" id="moreBtn" aria-label="List options"><svg class="i"><use href="#i-dots"/></svg></button>
         <div class="pop" id="pop" hidden></div>
       </div>
@@ -539,6 +649,18 @@ html{-webkit-tap-highlight-color:transparent}
       </div>
     </div>
     <div class="calmode" id="calMode" hidden></div>
+    <div class="scroll" id="notesMode" hidden><div class="col" id="notesCol"></div></div>
+    <div class="aimode" id="aiMode" hidden>
+      <div class="ai-scroll" id="aiScroll"><div class="ai-col" id="aiLog"></div></div>
+      <div class="ai-dock"><div class="ai-col">
+        <div class="ai-chips" id="aiChips"></div>
+        <form class="ai-composer" id="aiForm">
+          <textarea id="aiInput" rows="1" placeholder="Ask Orbit, or tell it what to do…" aria-label="Message"></textarea>
+          <button class="ai-send" id="aiSend" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button>
+        </form>
+        <div class="ai-foot" id="aiFoot"></div>
+      </div></div>
+    </div>
   </main>
 </div>
 <div class="cpop" id="cpop" hidden role="dialog" aria-label="List color"></div>
@@ -660,7 +782,7 @@ function exampleState(){
     ]};
 }
 
-let S = isCloud ? {v:2, lists:[], tasks:[]} : exampleState(), loaded = false;
+let S = isCloud ? {v:2, lists:[], tasks:[], notes:[], prefs:{}} : exampleState(), loaded = false;
 const ui = {view:"today", mode:"list", plannerMode:"cal", calKind:"due", trayAll:false, sel:null, q:"", showDone:true, addImportant:false, addDue:null, noParse:false,
   popOpen:false, delArm:null, calMonth:null, calDay:today(), dueEdit:false, addDueEdit:false, calMenu:null};
 try { const u = JSON.parse(localStorage.getItem("tally-ui") || "null");
@@ -679,11 +801,13 @@ const listById = id => S.lists.find(l => l.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const colorOf = t => listById(t.listId)?.color || COLORS[0];
 const viewTasks = v => SMART[v] ? S.tasks.filter(SMART[v].match) : S.tasks.filter(t => t.listId === v);
-const viewName = v => SMART[v] ? SMART[v].name : (listById(v)?.name || "Tasks");
-const isCustom = v => !SMART[v] && v !== "inbox";
+const viewName = v => SMART[v] ? SMART[v].name : SPECIAL[v] ? SPECIAL[v].name : (listById(v)?.name || "Tasks");
+const isCustom = v => !SMART[v] && !SPECIAL[v] && v !== "inbox";
 function ensureShape(){
   if (!Array.isArray(S.lists)) S.lists = [];
   if (!Array.isArray(S.tasks)) S.tasks = [];
+  if (!Array.isArray(S.notes)) S.notes = [];
+  if (!S.prefs || typeof S.prefs !== "object") S.prefs = {};
   if (!S.lists.some(l => l.id === "inbox")) S.lists.unshift({id:"inbox", name:"Tasks", color:"#6b7280"});
   for (const t of S.tasks) {            // older versions called the do-date "myDay"
     if ("myDay" in t) { if (t.myDay && !t.plan) t.plan = t.myDay; delete t.myDay; }
@@ -738,6 +862,8 @@ async function desktopExtras(){
     if (cmd === "modeList") setMode("list");
     if (cmd === "modeCal") setMode("cal");
     if (cmd === "planner") setView("planner");
+    if (cmd === "assistant" && aiAllowed) setView("assistant");
+    if (cmd === "notes") setView("notes");
   });
   await refreshG();
 }
@@ -769,7 +895,7 @@ async function bootWeb(){
 
 /* ---------- cloud sync (Firebase): one document per list and per task ---------- */
 let cloudUser = null, cloudReady = false, cloudUnsub = null, pushTimer = null, renderQueued = false, moveOffer = null;
-const synced = {lists: new Map(), tasks: new Map()};   // id -> canonical JSON last seen on the server side
+const synced = {lists: new Map(), tasks: new Map(), notes: new Map(), settings: new Map()};   // id -> canonical JSON last seen on the server side
 const seen = {lists: false, tasks: false};
 function sortKeys(v){
   if (Array.isArray(v)) return v.map(sortKeys);
@@ -785,7 +911,7 @@ function pushCloud(){
   if (!cloudReady || !cloudUser) return;
   S.lists.forEach((l, i) => { l.order = i; });
   const ops = [];
-  for (const [col, arr] of [["lists", S.lists], ["tasks", S.tasks]]) {
+  for (const [col, arr] of [["lists", S.lists], ["tasks", S.tasks], ["notes", S.notes], ["settings", [{...S.prefs, id: "main"}]]]) {
     const map = synced[col], ids = new Set();
     for (const o of arr) {
       ids.add(o.id);
@@ -799,7 +925,19 @@ function pushCloud(){
   TallyCloud.commit(cloudUser.uid, ops).then(() => setSync("ok"), e => setSync("err", e.message));
 }
 function applyChanges(col, changes){
-  const arr = col === "lists" ? S.lists : S.tasks, map = synced[col];
+  if (col === "settings") {
+    let touched = false;
+    for (const c of changes) {
+      if (c.id !== "main") continue;
+      if (c.type === "removed") { synced.settings.delete("main"); continue; }
+      const data = {...c.data, id: "main"}, j = canon(data);
+      if (synced.settings.get("main") === j) continue;
+      synced.settings.set("main", j);
+      const {id, ...rest} = data; S.prefs = rest; touched = true;
+    }
+    return touched;
+  }
+  const arr = col === "lists" ? S.lists : col === "notes" ? S.notes : S.tasks, map = synced[col];
   let touched = false;
   for (const c of changes) {
     const i = arr.findIndex(o => o.id === c.id);
@@ -822,11 +960,13 @@ function onCloud(col, changes, meta){
 }
 function startSync(user){
   cloudUser = user; cloudReady = false; seen.lists = seen.tasks = false;
-  synced.lists.clear(); synced.tasks.clear();
-  S = {v:2, lists: [], tasks: []};
+  for (const m of Object.values(synced)) m.clear();
+  S = {v:2, lists: [], tasks: [], notes: [], prefs: {}};
   cloudUnsub = TallyCloud.watch(user.uid, {
     lists: (c, m) => onCloud("lists", c, m),
     tasks: (c, m) => onCloud("tasks", c, m),
+    notes: (c, m) => onCloud("notes", c, m),
+    settings: (c, m) => onCloud("settings", c, m),
     calTrash: c => onCalTrash(c),
     error: e => {
       setSync("err", e.message);
@@ -842,6 +982,7 @@ function cloudBecameReady(){
   showAuth(null); render(); pushCloud();
   setSync(navigator.onLine === false ? "off" : "ok");
   if (isDesktop) { offerMove(); calQueue(); }
+  if (Cal.hasClient()) Cal.preload();
 }
 function setSync(state, msg){
   const el = $("#syncStat"); if (!el || !isCloud) return;
@@ -878,7 +1019,7 @@ function doMove(){
   ensureShape();
   try { localStorage.setItem("tally-moved-" + cloudUser.uid, String(Date.now())); } catch(e){}
   moveOffer = null; commit();
-  toast(`Moved ${n} task${n === 1 ? "" : "s"} into your synced Tally. They're on your other devices now.`);
+  toast(`Moved ${n} task${n === 1 ? "" : "s"} into your synced Orbit. They're on your other devices now.`);
 }
 function skipMove(){ try { localStorage.setItem("tally-moved-" + cloudUser.uid, "skipped"); } catch(e){} moveOffer = null; render(); }
 
@@ -900,11 +1041,11 @@ function renderAuth(){
   const slot = $("#authSlot");
   if (!authUi) { slot.innerHTML = ""; return; }
   const f = captureFocus();
-  const a = authUi, brand = `<div class="brand">tally<em>.</em></div>`;
+  const a = authUi, brand = `<div class="brand">orbit<em>.</em></div>`;
   const msg = a.msg ? `<div class="msg ${a.msgType || "err"}">${esc(a.msg)}</div>` : "";
   let body;
   if (a.mode === "loading") body = `${brand}<p class="auth-sub">Opening your tasks…</p><div class="spin" aria-label="Loading"></div>`;
-  else if (a.mode === "setup") body = `${brand}<h2>Almost set up</h2><p class="auth-sub">This copy of Tally doesn't have your Firebase settings yet. Paste them into <code>firebase-config.js</code>, as in the setup steps, then reload this page.</p>`;
+  else if (a.mode === "setup") body = `${brand}<h2>Almost set up</h2><p class="auth-sub">This copy of Orbit doesn't have your Firebase settings yet. Paste them into <code>firebase-config.js</code>, as in the setup steps, then reload this page.</p>`;
   else if (a.mode === "rules") body = `${brand}<h2>Firebase blocked access</h2><p class="auth-sub">You're signed in, but the database rules don't allow reading your tasks. In Firebase, open Firestore Database › Rules, paste the rules from the setup steps, click Publish, then reload.</p><button class="btn" id="authReload">Reload</button><div class="auth-links"><button id="authOut">Sign out</button></div>`;
   else {
     const up = a.mode === "signup", reset = a.mode === "reset";
@@ -954,7 +1095,7 @@ async function bootCloud(){
     if (cloudUnsub) { cloudUnsub(); cloudUnsub = null; }
     if (!user) {
       cloudUser = null; cloudReady = false; loaded = false; moveOffer = null; ui.sel = null;
-      S = {v:2, lists: [], tasks: []}; render();
+      S = {v:2, lists: [], tasks: [], notes: [], prefs: {}}; render();
       return showAuth({mode:"signin"});
     }
     showAuth({mode:"loading"});
@@ -974,7 +1115,8 @@ function restoreFocus(f){ if (!f) return; const el = document.getElementById(f.i
 
 function render(){
   if (LEGACY[ui.view]) ui.view = LEGACY[ui.view];
-  if (!SMART[ui.view] && !listById(ui.view)) ui.view = "today";
+  if (!SMART[ui.view] && !SPECIAL[ui.view] && !listById(ui.view)) ui.view = "today";
+  if (ui.view === "assistant" && !aiAllowed) ui.view = "today";
   if (ui.sel && !taskById(ui.sel)) ui.sel = null;
   const f = captureFocus();
   renderNav(); renderMain();
@@ -986,8 +1128,10 @@ function autosize(ta){ ta.style.height = "auto"; ta.style.height = ta.scrollHeig
 function renderNav(){
   const open = t => !t.done, on = v => ui.view === v && !ui.q;
   let h = "";
-  for (const [k, v] of Object.entries(SMART)) {
-    const n = k === "planner" ? 0 : viewTasks(k).filter(open).length;
+  for (const k of NAV_ORDER) {
+    const v = SMART[k] || SPECIAL[k];
+    if (k === "assistant" && !aiAllowed) continue;
+    const n = k === "planner" || k === "assistant" ? 0 : k === "notes" ? 0 : viewTasks(k).filter(open).length;
     const late = k === "today" && S.tasks.some(t => !t.done && t.due && t.due < today());
     h += `<button class="nav-item ${on(k)?"on":""}" data-view="${k}" style="--c:${v.c};--c2:${v.c2}"><span class="tile">${icon(v.icon)}</span><span class="nm">${v.name}</span><span class="n ${late?"late":""}">${n||""}</span></button>`;
   }
@@ -1005,6 +1149,7 @@ function renderNav(){
 const DEFAULT_INBOX = "#6b7280";
 function viewColors(v){
   if (SMART[v]) return [SMART[v].c, SMART[v].c2];
+  if (SPECIAL[v]) return [SPECIAL[v].c, SPECIAL[v].c2];
   const c = listAccent(v); return c ? [c, `color-mix(in srgb, ${c} 55%, #a855f7)`] : null;
 }
 function listAccent(v){
@@ -1018,7 +1163,21 @@ function renderMain(){
   const vc = searching ? null : viewColors(ui.view), m = $("#main");
   if (vc) { m.style.setProperty("--accent", vc[0]); m.style.setProperty("--accent2", vc[1]); m.style.setProperty("--accent-soft", `color-mix(in srgb, ${vc[0]} 15%, var(--panel))`); }
   else { m.style.removeProperty("--accent"); m.style.removeProperty("--accent2"); m.style.removeProperty("--accent-soft"); }
-  $("#vtile").innerHTML = icon(searching ? "i-search" : SMART[ui.view] ? SMART[ui.view].icon : ui.view === "inbox" ? "i-inbox" : "i-rows");
+  $("#vtile").innerHTML = icon(searching ? "i-search" : SMART[ui.view] ? SMART[ui.view].icon : SPECIAL[ui.view] ? SPECIAL[ui.view].icon : ui.view === "inbox" ? "i-inbox" : "i-rows");
+  const special = !searching && SPECIAL[ui.view];
+  $("#notesMode").hidden = !(special && ui.view === "notes");
+  $("#aiMode").hidden = !(special && ui.view === "assistant");
+  $("#aiNew").hidden = !(special && ui.view === "assistant" && AI.items.length);
+  $("#main").classList.toggle("is-ai", !!special && ui.view === "assistant");
+  if (special) {
+    $("#main").classList.remove("is-cal");
+    const title = $("#title"); if (document.activeElement !== title) title.value = viewName(ui.view); title.readOnly = true; title.title = "";
+    $("#modeSeg").hidden = true; $("#moreBtn").hidden = true; $("#listMode").hidden = true; $("#calMode").hidden = true;
+    $("#sub").innerHTML = ui.view === "notes" ? `${S.notes.length ? `${S.notes.length} note${S.notes.length === 1 ? "" : "s"}` : "Ideas, class notes, things to remember"}`
+      : aiReady() ? "Your personal assistant. It can see your tasks, notes and calendar." : "Set up your free assistant";
+    if (ui.view === "notes") renderNotes(); else renderAI();
+    renderPop(); return;
+  }
   $("#main").classList.toggle("is-cal", cal);
   const title = $("#title"), custom = !searching && isCustom(ui.view);
   if (document.activeElement !== title) title.value = searching ? "Search" : viewName(ui.view);
@@ -1073,6 +1232,7 @@ function renderList(){
     tasks = S.tasks.filter(t => t.title.toLowerCase().includes(q) || (t.notes||"").toLowerCase().includes(q) || (t.steps||[]).some(s => s.title.toLowerCase().includes(q)));
   } else tasks = viewTasks(ui.view);
   if (!searching && ui.view === "planner") { $("#tasks").innerHTML = plannerListHtml(); return; }
+  const noteHits = searching ? S.notes.filter(n => (n.title + " " + n.body).toLowerCase().includes(ui.q.toLowerCase())).slice(0, 8) : [];
   const showList = searching || !!SMART[ui.view];
   const allOpen = tasks.filter(t => !t.done), done = tasks.filter(t => t.done).sort((a,b) => (b.completedAt||0) - (a.completedAt||0));
   const rows = arr => arr.map(t => rowHtml(t, {showList, drag:true})).join("");
@@ -1082,14 +1242,14 @@ function renderList(){
   const pinned = ui.view === "starred" && !searching ? []
     : sortOpen((ui.view === "today" && !searching ? S.tasks.filter(t => !t.done) : allOpen).filter(t => t.important));
   const openT = pinned.length ? allOpen.filter(t => !t.important) : allOpen;
-  let h = pinned.length ? starredHtml(pinned, grp) : "";
+  let h = (ui.view === "today" && !searching ? todayTop() : "") + (pinned.length ? starredHtml(pinned, grp) : "");
   if (!tasks.length && !pinned.length) {
     const msg = searching ? ["Nothing found", `No tasks match “${esc(ui.q)}”.`]
       : ui.view === "today" ? ["A clear day", "Add something above, or plan tasks for today in the Planner."]
       : ui.view === "upcoming" ? ["Nothing scheduled", "Tasks with a due date show up here."]
       : ui.view === "starred" ? ["No stars yet", "Star the tasks that matter most."]
       : ["Empty list", "Type above and press Return."];
-    h = `<div class="empty"><h3>${msg[0]}</h3><p>${msg[1]}</p></div>`;
+    h += `<div class="empty"><h3>${msg[0]}</h3><p>${msg[1]}</p></div>`;
   } else {
     const t0 = today(), t1 = addDays(1), t7 = addDays(7);
     let groups = null;
@@ -1109,6 +1269,7 @@ function renderList(){
       if (ui.showDone) h += rows(done);
     }
   }
+  if (noteHits.length) h = `<div class="group">Notes</div><div class="note-grid search-notes">${noteHits.map(n => `<button class="note-card" data-opennote="${n.id}"><b>${esc(n.title || "Untitled")}</b><span class="snip">${esc(noteSnippet(n))}</span></button>`).join("")}</div>` + h;
   $("#tasks").innerHTML = h;
 }
 
@@ -1306,6 +1467,7 @@ function renderCal(){
   const agenda = `<aside class="agenda" aria-label="Selected day">
     <div class="ag-day">${dd.toLocaleDateString(undefined,{weekday:"long"})}</div>
     <div class="ag-sub">${dd.toLocaleDateString(undefined,{month:"long", day:"numeric"})} · ${relDays(day)}</div>
+    ${aiAllowed ? scheduleHtml(day, "Calendar") : ""}
     ${agendaBody}
   </aside>`;
   const kindSeg = ui.view === "planner" ? "" : `<div class="seg sm" role="group" aria-label="Calendar type">
@@ -1381,6 +1543,8 @@ function renderPop(){
 /* ---------- actions ---------- */
 function commit(){ persist(); render(); }
 function setView(v){
+  if (v !== "notes") ui.noteSel = null;
+  if (v === "assistant") setTimeout(() => { if (!touch) $("#aiInput")?.focus(); renderAI(true); }, 0);
   if (v === "planner" && ui.view !== "planner") { ui.calDay = today(); ui.calMonth = null; }
   ui.view = v; clearSearch(true); ui.popOpen = false; ui.delArm = null; ui.sel = null; calDraft = null;
   ui.addDue = null; ui.addImportant = false; ui.addDueEdit = false;
@@ -1518,6 +1682,7 @@ main.addEventListener("click", e => {
     return commit();
   }
   if (tgt.closest("#doneToggle")) { ui.showDone = !ui.showDone; return commit(); }
+  const on_ = tgt.closest("[data-opennote]"); if (on_) { const id = on_.dataset.opennote; setView("notes"); ui.noteSel = id; return render(); }
   if (tgt.closest("#moveYes")) return doMove();
   if (tgt.closest("#moveNo")) return skipMove();
   const cn = tgt.closest("[data-cal]"); if (cn) return calNav(cn.dataset.cal);
@@ -1709,6 +1874,7 @@ document.addEventListener("drop", e => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { if (cpopFor) return closeColorPop(); if (sheet) return closeSettings(); if (ui.popOpen) { ui.popOpen = false; renderPop(); } }
   if (!isDesktop && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#search").focus(); }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j" && aiAllowed) { e.preventDefault(); setView("assistant"); }
 });
 let lastDay = today();
 setInterval(() => { if (today() !== lastDay) { lastDay = today(); render(); } }, 60000);
@@ -1733,7 +1899,7 @@ function nextDay(s){ const d = parseISO(s); d.setDate(d.getDate()+1); return iso
 function eventFor(t, opts){
   const date = t.due || today(), lst = listById(t.listId);
   const steps = (t.steps||[]).map(s => (s.done ? "[x] " : "[ ] ") + s.title).join("\n");
-  const ev = { summary: (t.done ? "✓ " : "") + t.title, description: [t.notes, steps, `From Tally · ${lst ? lst.name : "Tasks"}`].filter(Boolean).join("\n\n") };
+  const ev = { summary: (t.done ? "✓ " : "") + t.title, description: [t.notes, steps, `From Orbit · ${lst ? lst.name : "Tasks"}`].filter(Boolean).join("\n\n") };
   if (!opts.time) { ev.start = {date}; ev.end = {date: nextDay(date)}; }
   else {
     const [h, m] = opts.time.split(":").map(Number);
@@ -1829,23 +1995,690 @@ async function calSyncChanged(){
   if (changed) { if (isCloud) persist(); else { try { await window.tally.save(S); } catch(e){} } if (ui.sel) render(); }
 }
 
+/* ================================================================
+   Orbit: notes, Google Calendar, Gemini assistant, daily brief
+   (spliced into app.html by the build; shares its scope)
+   ================================================================ */
+const aiAllowed = isCloud;                 // the assistant needs the synced site (network access + saved key)
+const SPECIAL = {
+  assistant: {name:"Assistant", icon:"i-spark", c:"#8b5cf6", c2:"#ec4899"},
+  notes:     {name:"Notes",     icon:"i-notes", c:"#10b981", c2:"#14b8a6"},
+};
+const NAV_ORDER = ["assistant", "today", "planner", "notes", "upcoming", "starred", "all"];
+const prefs = () => (S.prefs ||= {});
+const lcDate = s => lc(dueLabel(s).text);
+
+/* ---------- tiny markdown for assistant replies and notes ---------- */
+function md(text){
+  const inline = s => esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/(https?:\/\/[^\s<]+)/g, '<a class="link" href="$1" target="_blank" rel="noopener">$1</a>');
+  const out = []; let list = null;
+  for (const raw of String(text || "").split("\n")) {
+    const line = raw.trimEnd();
+    const b = line.match(/^\s*[-*•]\s+(.*)$/), n = line.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (b || n) {
+      const tag = b ? "ul" : "ol";
+      if (!list || list.tag !== tag) { if (list) out.push(`</${list.tag}>`); list = {tag}; out.push(`<${tag}>`); }
+      out.push(`<li>${inline((b || n)[1])}</li>`); continue;
+    }
+    if (list) { out.push(`</${list.tag}>`); list = null; }
+    const h = line.match(/^#{1,4}\s+(.*)$/);
+    if (h) out.push(`<p class="md-h">${inline(h[1])}</p>`);
+    else if (line.trim()) out.push(`<p>${inline(line)}</p>`);
+  }
+  if (list) out.push(`</${list.tag}>`);
+  return out.join("");
+}
+
+/* ================= Notes ================= */
+const tagsOf = body => [...new Set((String(body || "").match(/(?:^|\s)#([\p{L}\p{N}_-]{2,30})/gu) || []).map(m => m.trim().slice(1).toLowerCase()))];
+function newNote(fields = {}){
+  const n = {id: uid(), title: "", body: "", created: Date.now(), updated: Date.now(), ...fields};
+  S.notes.unshift(n); commit(); return n;
+}
+const noteById = id => S.notes.find(n => n.id === id);
+function noteSnippet(n){ return (n.body || "").replace(/\s+/g, " ").trim().slice(0, 160); }
+function renderNotes(){
+  if (renderNotes.busy) return setTimeout(renderNotes, 0);
+  renderNotes.busy = true;
+  try { renderNotesNow(); } finally { renderNotes.busy = false; }
+}
+function renderNotesNow(){
+  const col = $("#notesCol");
+  const n = ui.noteSel && noteById(ui.noteSel);
+  if (n) {
+    const f = captureFocus();
+    col.innerHTML = `
+      <div class="note-bar"><button class="tbtn" data-nact="back">${icon("i-left")} All notes</button><span class="sp"></span>
+        <button class="tbtn" data-nact="ask">${icon("i-spark")} Ask about this</button>
+        <button class="del ${ui.delArm === "note:" + n.id ? "arm" : ""}" data-nact="delete">${icon("i-trash")}${ui.delArm === "note:" + n.id ? "Delete note" : ""}</button></div>
+      <div class="note-ed">
+        <input id="nTitle" class="note-title" placeholder="Title" value="${esc(n.title)}" maxlength="200" autocomplete="off">
+        <textarea id="nBody" class="note-body auto" placeholder="Write anything. Use #tags to group notes.">${esc(n.body)}</textarea>
+        <div class="note-meta">${tagsOf(n.body).map(t => `<span class="tag">#${esc(t)}</span>`).join("")}<span class="sp"></span>Edited ${new Date(n.updated).toLocaleString(undefined, {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"})}</div>
+      </div>`;
+    restoreFocus(f);
+    col.querySelectorAll("textarea.auto").forEach(autosize);
+    if (!f && !n.title && !n.body) $("#nTitle").focus();
+    return;
+  }
+  ui.noteSel = null;
+  const q = (ui.noteQ || "").toLowerCase();
+  const tag = ui.noteTag || "";
+  let list = S.notes.slice().sort((a, b) => (b.updated || 0) - (a.updated || 0));
+  const allTags = [...new Set(list.flatMap(n => tagsOf(n.body)))].sort();
+  if (tag) list = list.filter(n => tagsOf(n.body).includes(tag));
+  if (q) list = list.filter(n => (n.title + " " + n.body).toLowerCase().includes(q));
+  const f = captureFocus();
+  col.innerHTML = `
+    <div class="note-bar">
+      <label class="search note-search">${icon("i-search")}<input id="noteQ" type="search" placeholder="Search notes" value="${esc(ui.noteQ || "")}" autocomplete="off"></label>
+      <button class="btn" data-nact="new">${icon("i-plus")} New note</button>
+    </div>
+    ${allTags.length ? `<div class="tag-row"><button class="tag ${tag ? "" : "on"}" data-tag="">All</button>${allTags.map(t => `<button class="tag ${t === tag ? "on" : ""}" data-tag="${esc(t)}">#${esc(t)}</button>`).join("")}</div>` : ""}
+    ${list.length ? `<div class="note-grid">${list.map(n => `
+      <button class="note-card" data-note="${n.id}">
+        <b>${esc(n.title || noteSnippet(n).slice(0, 60) || "Untitled")}</b>
+        <span class="snip">${esc(n.title ? noteSnippet(n) : noteSnippet(n).slice(60))}</span>
+        <span class="nc-foot">${tagsOf(n.body).slice(0, 3).map(t => `<i>#${esc(t)}</i>`).join("")}<em>${new Date(n.updated).toLocaleDateString(undefined, {month:"short", day:"numeric"})}</em></span>
+      </button>`).join("")}</div>`
+      : `<div class="empty"><h3>${q || tag ? "Nothing found" : "Your second brain"}</h3><p>${q || tag ? "Try another word or tag." : "Ideas, class notes, things to remember. Write a note, or tell the Assistant “remember…”"}</p></div>`}`;
+  restoreFocus(f);
+}
+$("#notesMode").addEventListener("click", e => {
+  const card = e.target.closest("[data-note]"); if (card) { ui.noteSel = card.dataset.note; ui.delArm = null; return render(); }
+  const tg = e.target.closest("[data-tag]"); if (tg) { ui.noteTag = tg.dataset.tag; return renderNotes(); }
+  const a = e.target.closest("[data-nact]")?.dataset.nact; if (!a) return;
+  if (a === "new") { const n = newNote(); ui.noteSel = n.id; render(); $("#nTitle")?.focus(); }
+  if (a === "back") { const n = noteById(ui.noteSel); if (n && !n.title.trim() && !n.body.trim()) { S.notes = S.notes.filter(x => x !== n); } ui.noteSel = null; ui.delArm = null; commit(); }
+  if (a === "delete") {
+    if (ui.delArm !== "note:" + ui.noteSel) { ui.delArm = "note:" + ui.noteSel; return renderNotes(); }
+    S.notes = S.notes.filter(x => x.id !== ui.noteSel); ui.noteSel = null; ui.delArm = null; commit(); toast("Note deleted");
+  }
+  if (a === "ask") { const n = noteById(ui.noteSel); setView("assistant"); const i = $("#aiInput"); i.value = `About my note “${n.title || "Untitled"}”: `; i.focus(); autosize(i); }
+});
+$("#notesMode").addEventListener("input", e => {
+  if (e.target.id === "noteQ") { ui.noteQ = e.target.value; return renderNotes(); }
+  const n = noteById(ui.noteSel); if (!n) return;
+  if (e.target.id === "nTitle") n.title = e.target.value;
+  if (e.target.id === "nBody") { n.body = e.target.value; autosize(e.target); }
+  n.updated = Date.now(); persist();
+  clearTimeout(renderNotes.t); renderNotes.t = setTimeout(() => { if (document.activeElement?.id !== "nBody" && document.activeElement?.id !== "nTitle") renderNotes(); else { const m = $(".note-meta"); if (m) m.innerHTML = tagsOf(n.body).map(t => `<span class="tag">#${esc(t)}</span>`).join("") + `<span class="sp"></span>Edited just now`; } }, 400);
+});
+
+/* ================= Google Calendar (works in the browser on every device) ================= */
+const Cal = (() => {
+  const SCOPES = "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly";
+  let token = null, exp = 0, gis = null, calCache = null;
+  try { const t = JSON.parse(sessionStorage.getItem("orbit-gtok") || "null"); if (t && t.exp > Date.now() + 60000) { token = t.token; exp = t.exp; } } catch(e){}
+  const flag = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) === "1"; localStorage.setItem(k, v ? "1" : "0"); } catch(e){ return false; } };
+  const clientId = () => (prefs().gClientId || "").trim();
+  const live = () => !!token && Date.now() < exp - 30000;
+  function loadGis(){
+    if (window.google?.accounts?.oauth2) return Promise.resolve();
+    if (gis) return gis;
+    gis = new Promise((res, rej) => {
+      const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.async = true;
+      s.onload = () => res(); s.onerror = () => { gis = null; rej(new Error("Couldn't load Google sign-in. Check your internet connection.")); };
+      document.head.appendChild(s);
+    });
+    return gis;
+  }
+  async function connect(){             // call from a tap or click
+    if (!clientId()) throw new Error("Add your Google client ID in Settings › Google Calendar first.");
+    if (!window.google?.accounts?.oauth2) { await loadGis(); throw new Error("Google sign-in is ready. Tap Connect once more."); }
+    await new Promise((res, rej) => {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: clientId(), scope: SCOPES,
+        callback: r => {
+          if (r.error) return rej(new Error(r.error === "access_denied" ? "Calendar access wasn't allowed." : (r.error_description || r.error)));
+          if (!google.accounts.oauth2.hasGrantedAllScopes(r, ...SCOPES.split(" "))) return rej(new Error("Orbit needs both calendar boxes checked. Try connecting again."));
+          token = r.access_token; exp = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+          try { sessionStorage.setItem("orbit-gtok", JSON.stringify({token, exp})); } catch(e){}
+          flag("orbit-gcal-linked", true); res();
+        },
+        error_callback: err => rej(new Error(err?.type === "popup_closed" ? "Google sign-in was closed before it finished." : err?.type === "popup_failed_to_open" ? "Your browser blocked the Google sign-in window. Allow pop-ups for this site and try again." : "Google sign-in didn't finish.")),
+      });
+      client.requestAccessToken({prompt: flag("orbit-gcal-linked") ? "" : "consent"});
+    });
+    calCache = null;
+  }
+  function disconnect(){
+    if (token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token, () => {});
+    token = null; exp = 0; flag("orbit-gcal-linked", false);
+    try { sessionStorage.removeItem("orbit-gtok"); } catch(e){}
+  }
+  async function api(path, opts = {}){
+    if (!live()) { const e = new Error("Google Calendar needs to be reconnected (tap Reconnect)."); e.code = "auth"; throw e; }
+    const r = await fetch("https://www.googleapis.com/calendar/v3" + path, {...opts, headers: {Authorization: "Bearer " + token, ...(opts.body ? {"Content-Type": "application/json"} : {})}});
+    if (r.status === 401) { token = null; const e = new Error("Google Calendar needs to be reconnected (tap Reconnect)."); e.code = "auth"; throw e; }
+    if (r.status === 204) return null;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error?.message || `Google Calendar error ${r.status}`);
+    return j;
+  }
+  async function calendars(){
+    if (calCache && calCache.t > Date.now() - 10 * 60000) return calCache.list;
+    const j = await api("/users/me/calendarList?maxResults=100");
+    const list = (j.items || []).filter(c => !c.hidden && c.selected !== false && !/#holiday@|#contacts@/.test(c.id))
+      .map(c => ({id: c.primary ? "primary" : c.id, name: c.summaryOverride || c.summary, primary: !!c.primary, color: c.backgroundColor, canEdit: /owner|writer/.test(c.accessRole)}));
+    calCache = {t: Date.now(), list}; return list;
+  }
+  const norm = (e, c) => ({id: e.id, calendarId: c.id, calendar: c.name, color: c.color || "#6366f1", title: e.summary || "(no title)",
+    allDay: !!e.start?.date, start: e.start?.dateTime || e.start?.date, end: e.end?.dateTime || e.end?.date, location: e.location || "", description: (e.description || "").slice(0, 300), link: e.htmlLink});
+  async function list(fromISO, toISO){      // [from, to) as YYYY-MM-DD
+    const cals = await calendars();
+    const tmin = parseISO(fromISO).toISOString(), tmax = parseISO(toISO).toISOString();
+    const out = [];
+    await Promise.all(cals.map(async c => {
+      const j = await api(`/calendars/${encodeURIComponent(c.id)}/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin=${encodeURIComponent(tmin)}&timeMax=${encodeURIComponent(tmax)}`);
+      for (const e of j.items || []) if (e.status !== "cancelled") out.push(norm(e, c));
+    }));
+    return out.sort((a, b) => (a.allDay === b.allDay ? 0 : a.allDay ? -1 : 1) || String(a.start).localeCompare(String(b.start)));
+  }
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  function toGoogle(ev){
+    const o = {};
+    if (ev.title != null) o.summary = ev.title;
+    if (ev.location != null) o.location = ev.location;
+    if (ev.description != null) o.description = ev.description;
+    if (ev.start) {
+      if (ev.all_day || /^\d{4}-\d{2}-\d{2}$/.test(ev.start)) {
+        const s = ev.start.slice(0, 10), e = (ev.end || "").slice(0, 10);
+        const next = d => { const x = parseISO(d); x.setDate(x.getDate() + 1); return iso(x); };
+        o.start = {date: s}; o.end = {date: e && e > s ? e : next(s)};
+      } else {
+        const fix = t => t.length === 16 ? t + ":00" : t.slice(0, 19);
+        const st = fix(ev.start);
+        let en = ev.end ? fix(ev.end) : null;
+        if (!en) { const d = new Date(st); d.setMinutes(d.getMinutes() + 60); en = `${iso(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`; }
+        o.start = {dateTime: st, timeZone: tz}; o.end = {dateTime: en, timeZone: tz};
+      }
+    }
+    return o;
+  }
+  async function resolveCal(name){
+    if (!name) return "primary";
+    const cals = await calendars();
+    const c = cals.find(c => c.id === name) || cals.find(c => c.name.toLowerCase() === String(name).toLowerCase()) || cals.find(c => c.name.toLowerCase().includes(String(name).toLowerCase()));
+    return c && c.canEdit ? c.id : "primary";
+  }
+  async function create(ev){ const calId = await resolveCal(ev.calendar); const cals = await calendars(); const r = await api(`/calendars/${encodeURIComponent(calId)}/events`, {method: "POST", body: JSON.stringify(toGoogle(ev))}); return norm(r, cals.find(c => c.id === calId) || {id: calId, name: "Calendar"}); }
+  async function update(calId, id, ev){ const r = await api(`/calendars/${encodeURIComponent(calId)}/events/${encodeURIComponent(id)}`, {method: "PATCH", body: JSON.stringify(toGoogle(ev))}); return norm(r, {id: calId, name: ""}); }
+  async function remove(calId, id){ await api(`/calendars/${encodeURIComponent(calId)}/events/${encodeURIComponent(id)}`, {method: "DELETE"}); }
+  return {live, linked: () => flag("orbit-gcal-linked"), hasClient: () => !!clientId(), preload: () => { if (clientId()) loadGis().catch(() => {}); }, connect, disconnect, calendars, list, create, update, remove};
+})();
+
+/* day-by-day event cache for Today and the Planner */
+const evCache = {}, evBusy = {};
+function dayEvents(ds){
+  const c = evCache[ds];
+  if (Cal.live() && (!c || c.t < Date.now() - 5 * 60000) && !evBusy[ds]) {
+    evBusy[ds] = true;
+    const next = (() => { const d = parseISO(ds); d.setDate(d.getDate() + 1); return iso(d); })();
+    Cal.list(ds, next).then(list => { evCache[ds] = {t: Date.now(), list}; }, () => {}).finally(() => { evBusy[ds] = false; scheduleRender(); });
+  }
+  return c ? c.list : null;
+}
+function fmtClock(s){ const d = new Date(s); return d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"}); }
+function eventRows(list){
+  return list.map(e => `<a class="evrow" ${e.link ? `href="${esc(e.link)}" target="_blank" rel="noopener"` : ""} style="--c:${esc(e.color)}">
+    <span class="evt">${e.allDay ? "All day" : fmtClock(e.start)}</span><i></i>
+    <span class="evti">${esc(e.title)}${e.location ? `<small>${esc(e.location)}</small>` : ""}</span>
+    ${!e.allDay && e.end ? `<span class="evd">${fmtClock(e.end)}</span>` : ""}</a>`).join("");
+}
+function calPrompt(compact){
+  if (!aiAllowed) return "";
+  if (Cal.live()) return "";
+  if (Cal.linked()) return `<button class="cal-cta" data-calconnect>${icon("i-cal")} Reconnect Google Calendar${compact ? "" : " to see your schedule"}</button>`;
+  if (Cal.hasClient()) return `<button class="cal-cta" data-calconnect>${icon("i-cal")} Connect Google Calendar</button>`;
+  return "";
+}
+function scheduleHtml(ds, title){
+  const list = dayEvents(ds);
+  if (!Cal.live()) { const p = calPrompt(); return p ? `<div class="sched">${p}</div>` : ""; }
+  if (list === null) return `<div class="sched"><div class="group">${title}</div><div class="sched-load">Loading your calendar…</div></div>`;
+  if (!list.length) return `<div class="sched"><div class="group">${title}</div><div class="sched-load">Nothing on your calendar.</div></div>`;
+  return `<div class="sched"><div class="group">${title}</div>${eventRows(list)}</div>`;
+}
+async function connectCalendar(){
+  try { await Cal.connect(); toast("Google Calendar connected"); for (const k in evCache) delete evCache[k]; render(); if (sheet) renderSheet(); }
+  catch(e) { toast(e.message); }
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-calconnect]")) { e.preventDefault(); connectCalendar(); } });
+
+/* ================= Gemini ================= */
+const aiReady = () => aiAllowed && !!(prefs().geminiKey || "").trim();
+async function pickModel(key, avoid = []){
+  try { const c = JSON.parse(localStorage.getItem("orbit-model") || "null"); if (c && c.t > Date.now() - 864e5 && !avoid.includes(c.m)) return c.m; } catch(e){}
+  let m = "gemini-flash-latest";
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(key)}`);
+    const j = await r.json();
+    const ok = (j.models || []).filter(x => (x.supportedGenerationMethods || []).includes("generateContent"))
+      .map(x => x.name.replace(/^models\//, "")).filter(n => /^gemini-\d+(\.\d+)?-flash$/.test(n) && !avoid.includes(n));
+    ok.sort((a, b) => parseFloat(b.split("-")[1]) - parseFloat(a.split("-")[1]));
+    if (ok.length) m = ok[0];
+  } catch(e){}
+  if (avoid.includes(m)) m = avoid.includes("gemini-flash-latest") ? "gemini-flash-lite-latest" : "gemini-flash-latest";
+  try { localStorage.setItem("orbit-model", JSON.stringify({m, t: Date.now()})); } catch(e){}
+  return m;
+}
+async function gemini({contents, system, tools, maxTokens}){
+  const key = (prefs().geminiKey || "").trim();
+  if (!key) throw new Error("Add your free Gemini key in Settings › Assistant first.");
+  const avoid = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const model = await pickModel(key, avoid);
+    const body = {contents, systemInstruction: {parts: [{text: system}]}, generationConfig: {temperature: 0.5, ...(maxTokens ? {maxOutputTokens: maxTokens} : {})}};
+    if (tools) { body.tools = [{functionDeclarations: TOOLS}]; body.toolConfig = {functionCallingConfig: {mode: "AUTO"}}; }
+    let r;
+    try { r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)}); }
+    catch(e) { throw new Error("Couldn't reach Gemini. Check your internet connection."); }
+    const j = await r.json().catch(() => ({}));
+    const msg = j.error?.message || "";
+    if (r.status === 404 || (r.status === 429 && /limit:\s*0\b/.test(msg)) || (r.status === 400 && /not (found|supported)/i.test(msg))) { avoid.push(model); try { localStorage.removeItem("orbit-model"); } catch(e){} continue; }
+    if (r.status === 429) throw new Error("You've hit Gemini's free limit for now. Wait a minute and try again.");
+    if (r.status === 400 && /API key/i.test(msg)) throw new Error("Gemini didn't accept your key. Check it in Settings › Assistant.");
+    if (r.status === 403) throw new Error("Gemini refused the request. Make sure your key is from aistudio.google.com and the Generative Language API is allowed.");
+    if (!r.ok) throw new Error(msg || `Gemini error ${r.status}`);
+    const cand = j.candidates?.[0];
+    if (!cand) throw new Error(j.promptFeedback?.blockReason ? "Gemini declined to answer that one." : "Gemini sent an empty reply. Try again.");
+    cand.content ||= {role: "model", parts: []};
+    cand.content.parts ||= [];
+    cand.content.role = "model";
+    return cand.content;
+  }
+  throw new Error("Couldn't find a Gemini model your key can use. Check your key in Settings › Assistant.");
+}
+const textOf = content => content.parts.filter(p => p.text && !p.thought).map(p => p.text).join("").trim();
+
+/* ---------- context the assistant always sees ---------- */
+function compactTask(t){
+  const l = listById(t.listId);
+  return {id: t.id, title: t.title, list: l ? l.name : "Tasks", due: t.due || null, do_date: t.plan || null, starred: !!t.important, done: !!t.done,
+    ...(t.notes ? {notes: t.notes.slice(0, 300)} : {}), ...(t.steps?.length ? {steps: t.steps.map(s => (s.done ? "[x] " : "[ ] ") + s.title)} : {})};
+}
+function systemPrompt(){
+  const now = new Date(), tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const open = S.tasks.filter(t => !t.done).sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999")).slice(0, 150);
+  const memory = prefs().memory || [];
+  return `You are Orbit, the user's personal assistant inside their Orbit app (tasks, a day planner, notes, and Google Calendar). You are their second brain: you remember things for them, keep their school work and life organized, and plan their days.
+
+Now: ${now.toLocaleDateString("en-US", {weekday: "long", year: "numeric", month: "long", day: "numeric"})}, ${now.toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"})} (${tz}). Today is ${today()}.
+
+How to work:
+- Act, don't explain how. If the user mentions an assignment, test, or deadline, add it as a task with a due date right away. If they say when they'll work on it, set do_date. Only ask a question when something essential is truly missing.
+- "Due date" is when it's due. "do_date" is the day they plan to work on it. The Planner shows do_dates.
+- When planning days or a week: check their calendar (classes, appointments) with get_calendar_events, spread work out before due dates, put bigger tasks earlier, keep each day realistic (3-5 tasks), and set do_date on each task. Then summarize the plan by day.
+- Calendar: use add_calendar_event for appointments, study blocks, or events with times. Assignments are tasks, not events, unless the user asks to put them on the calendar.
+- Use remember for lasting facts about the user (name, classes, schedule patterns, birthdays, preferences). Use save_note for longer information worth keeping (class notes, ideas, plans, lists). Search notes before saying you don't know something.
+- Use YYYY-MM-DD for dates and YYYY-MM-DDTHH:MM (24-hour, the user's local time) for times. Resolve words like "Friday" or "next week" from today's date.
+- Reply in a friendly, brief way: a sentence or two, or a short bulleted list. No headings. Refer to tasks by title, never by id.
+
+Lists: ${S.lists.map(l => l.name).join(", ") || "Tasks"}
+What you remember about the user:
+${memory.length ? memory.map((m, i) => `${i + 1}. ${m}`).join("\n") : "(nothing yet)"}
+Open tasks (${S.tasks.filter(t => !t.done).length} total${open.length < S.tasks.filter(t => !t.done).length ? ", showing 150 by due date; use find_tasks for more" : ""}):
+${open.map(t => `- [${t.id}] ${t.title} | ${listById(t.listId)?.name || "Tasks"}${t.due ? ` | due ${t.due}` : ""}${t.plan ? ` | do ${t.plan}` : ""}${t.important ? " | starred" : ""}`).join("\n") || "(none)"}
+Notes: ${S.notes.length ? S.notes.slice(0, 60).map(n => `[${n.id}] ${n.title || noteSnippet(n).slice(0, 40)}`).join("; ") : "(none)"}
+Google Calendar: ${Cal.live() ? "connected" : Cal.linked() || Cal.hasClient() ? "needs reconnecting. Calendar tools will fail until the user taps Reconnect" : "not set up"}.`;
+}
+
+/* ---------- tools ---------- */
+const str = (description, extra = {}) => ({type: "string", description, ...extra});
+const TOOLS = [
+  {name: "find_tasks", description: "Search tasks (including ones not in the context list, and finished ones).", parameters: {type: "object", properties: {
+    query: str("Words to match in title or notes"), list: str("List name"), status: str("open, done, or all (default open)"),
+    due_from: str("YYYY-MM-DD"), due_to: str("YYYY-MM-DD"), limit: {type: "integer", description: "Max results (default 40)"}}}},
+  {name: "add_task", description: "Create a task. Use for assignments, tests, chores, and anything to do.", parameters: {type: "object", properties: {
+    title: str("Short task title, without the date words"), list: str("List name. Created if it doesn't exist. Default: Tasks"),
+    due: str("Due date YYYY-MM-DD"), do_date: str("Day to work on it, YYYY-MM-DD"), notes: str("Details"), starred: {type: "boolean"},
+    steps: {type: "array", items: {type: "string"}, description: "Checklist steps"}}, required: ["title"]}},
+  {name: "update_task", description: "Change a task: rename, move list, set or clear dates (empty string clears), star, complete, add notes or steps.", parameters: {type: "object", properties: {
+    task_id: str("Task id"), title: str("New title"), list: str("Move to this list"), due: str("YYYY-MM-DD, or empty to clear"), do_date: str("YYYY-MM-DD, or empty to clear"),
+    notes: str("Replace notes"), starred: {type: "boolean"}, done: {type: "boolean"}, add_steps: {type: "array", items: {type: "string"}}}, required: ["task_id"]}},
+  {name: "delete_task", description: "Delete a task permanently.", parameters: {type: "object", properties: {task_id: str("Task id")}, required: ["task_id"]}},
+  {name: "add_list", description: "Create a task list (for example a class).", parameters: {type: "object", properties: {name: str("List name")}, required: ["name"]}},
+  {name: "find_notes", description: "Search the user's notes by words or #tag. Returns note ids, titles and snippets.", parameters: {type: "object", properties: {query: str("Words or #tag; empty for recent notes")}}},
+  {name: "read_note", description: "Read a whole note.", parameters: {type: "object", properties: {note_id: str("Note id")}, required: ["note_id"]}},
+  {name: "save_note", description: "Create a note in the user's second brain. Use #tags in the body to group notes.", parameters: {type: "object", properties: {title: str("Title"), body: str("Note text")}, required: ["title", "body"]}},
+  {name: "update_note", description: "Edit a note. Use append to add to the end.", parameters: {type: "object", properties: {note_id: str("Note id"), title: str("New title"), body: str("Replace the whole body"), append: str("Text to add at the end")}, required: ["note_id"]}},
+  {name: "delete_note", description: "Delete a note.", parameters: {type: "object", properties: {note_id: str("Note id")}, required: ["note_id"]}},
+  {name: "remember", description: "Save a short lasting fact about the user (name, classes, preferences, important dates).", parameters: {type: "object", properties: {fact: str("One sentence")}, required: ["fact"]}},
+  {name: "forget", description: "Remove a remembered fact.", parameters: {type: "object", properties: {fact: str("The fact, or words from it")}, required: ["fact"]}},
+  {name: "get_calendar_events", description: "Read Google Calendar events (classes, appointments) between two dates.", parameters: {type: "object", properties: {start_date: str("YYYY-MM-DD"), end_date: str("YYYY-MM-DD, inclusive")}, required: ["start_date", "end_date"]}},
+  {name: "add_calendar_event", description: "Add an event to Google Calendar.", parameters: {type: "object", properties: {
+    title: str("Event title"), start: str("YYYY-MM-DDTHH:MM, or YYYY-MM-DD for all day"), end: str("YYYY-MM-DDTHH:MM (default one hour after start)"),
+    all_day: {type: "boolean"}, location: str("Place"), description: str("Details"), calendar: str("Calendar name (default: main calendar)")}, required: ["title", "start"]}},
+  {name: "update_calendar_event", description: "Change a Google Calendar event (get ids from get_calendar_events).", parameters: {type: "object", properties: {
+    event_id: str("Event id"), calendar_id: str("Calendar id"), title: str("New title"), start: str("YYYY-MM-DDTHH:MM or YYYY-MM-DD"), end: str("YYYY-MM-DDTHH:MM or YYYY-MM-DD"),
+    location: str("Place"), description: str("Details")}, required: ["event_id", "calendar_id"]}},
+  {name: "delete_calendar_event", description: "Delete a Google Calendar event.", parameters: {type: "object", properties: {event_id: str("Event id"), calendar_id: str("Calendar id"), title: str("Event title, for the confirmation")}, required: ["event_id", "calendar_id"]}},
+];
+const goodDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
+function findList(name, create){
+  if (!name) return listById("inbox");
+  const n = String(name).trim().toLowerCase();
+  let l = S.lists.find(x => x.name.toLowerCase() === n) || S.lists.find(x => x.name.toLowerCase().includes(n) || n.includes(x.name.toLowerCase()));
+  if (!l && create) { const used = new Set(S.lists.map(x => x.color)); l = {id: uid(), name: String(name).trim().slice(0, 60), color: COLORS.find(c => !used.has(c)) || COLORS[0]}; S.lists.push(l); }
+  return l || listById("inbox");
+}
+const resolveTask = id => taskById(id) || S.tasks.find(t => t.title.toLowerCase() === String(id).toLowerCase());
+const whenLabel = s => { if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return dueLabel(s).text; const d = new Date(s.length === 16 ? s + ":00" : s); return `${dueLabel(iso(d)).text}, ${d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"})}`; };
+async function runTool(name, a, turn){
+  const act = (text, icon_ = "i-check") => turn.acts.push({text, icon: icon_});
+  try {
+    switch (name) {
+      case "find_tasks": {
+        const q = (a.query || "").toLowerCase(), st = a.status || "open", l = a.list ? findList(a.list) : null;
+        let r = S.tasks.filter(t => (st === "all" || (st === "done" ? t.done : !t.done)) && (!l || t.listId === l.id)
+          && (!q || (t.title + " " + (t.notes || "")).toLowerCase().includes(q))
+          && (!a.due_from || (t.due && t.due >= a.due_from)) && (!a.due_to || (t.due && t.due <= a.due_to)));
+        return {count: r.length, tasks: r.slice(0, a.limit || 40).map(compactTask)};
+      }
+      case "add_task": {
+        const l = findList(a.list, true);
+        const t = newTask({listId: l.id, title: String(a.title).slice(0, 300), due: goodDate(a.due) ? a.due : null, plan: goodDate(a.do_date) ? a.do_date : null,
+          notes: a.notes || "", important: !!a.starred, steps: (a.steps || []).map(s => ({id: uid(), title: String(s), done: false}))});
+        act(`Added “${t.title}”${t.due ? ` · due ${lcDate(t.due)}` : ""}${t.plan ? ` · do ${lcDate(t.plan)}` : ""}${l.id !== "inbox" ? ` · ${l.name}` : ""}`, "i-plus");
+        return {ok: true, task_id: t.id};
+      }
+      case "update_task": {
+        const t = resolveTask(a.task_id); if (!t) return {error: "No task with that id."};
+        const ch = [];
+        if (a.title) { t.title = a.title; ch.push("renamed"); }
+        if (a.list) { const l = findList(a.list, true); t.listId = l.id; ch.push(`moved to ${l.name}`); }
+        if ("due" in a) { t.due = goodDate(a.due) ? a.due : null; ch.push(t.due ? `due ${lcDate(t.due)}` : "no due date"); }
+        if ("do_date" in a) { t.plan = goodDate(a.do_date) ? a.do_date : null; ch.push(t.plan ? `do ${lcDate(t.plan)}` : "unplanned"); }
+        if (a.notes != null) { t.notes = a.notes; ch.push("notes updated"); }
+        if (a.starred != null) { t.important = !!a.starred; ch.push(a.starred ? "starred" : "unstarred"); }
+        if (a.done != null) { t.done = !!a.done; t.completedAt = t.done ? Date.now() : null; ch.push(a.done ? "done" : "reopened"); }
+        if (a.add_steps?.length) { t.steps = [...(t.steps || []), ...a.add_steps.map(s => ({id: uid(), title: String(s), done: false}))]; ch.push(`${a.add_steps.length} step${a.add_steps.length > 1 ? "s" : ""} added`); }
+        commit(); act(`“${t.title}”: ${ch.join(", ") || "no change"}`, a.done ? "i-check" : "i-edit");
+        return {ok: true};
+      }
+      case "delete_task": {
+        const t = resolveTask(a.task_id); if (!t) return {error: "No task with that id."};
+        if (t.gcal) calRemoveQuiet(t.gcal);
+        S.tasks = S.tasks.filter(x => x !== t); commit(); act(`Deleted “${t.title}”`, "i-trash"); return {ok: true};
+      }
+      case "add_list": { const l = findList(a.name, true); commit(); act(`List “${l.name}” is ready`, "i-plus"); return {ok: true}; }
+      case "find_notes": {
+        const q = (a.query || "").toLowerCase().trim(), tag = q.startsWith("#") ? q.slice(1) : null;
+        const words = q.split(/\s+/).filter(w => w && !w.startsWith("#"));
+        const r = S.notes.filter(n => !q || (tag ? tagsOf(n.body).includes(tag) : words.some(w => (n.title + " " + n.body).toLowerCase().includes(w))))
+          .sort((x, y) => (y.updated || 0) - (x.updated || 0)).slice(0, 15);
+        return {notes: r.map(n => ({id: n.id, title: n.title, tags: tagsOf(n.body), snippet: noteSnippet(n), updated: new Date(n.updated).toISOString().slice(0, 10)}))};
+      }
+      case "read_note": { const n = noteById(a.note_id); return n ? {title: n.title, body: n.body.slice(0, 8000)} : {error: "No note with that id."}; }
+      case "save_note": { const n = newNote({title: String(a.title || "").slice(0, 200), body: String(a.body || "")}); act(`Saved note “${n.title || "Untitled"}”`, "i-notes"); return {ok: true, note_id: n.id}; }
+      case "update_note": {
+        const n = noteById(a.note_id); if (!n) return {error: "No note with that id."};
+        if (a.title) n.title = a.title;
+        if (a.body != null) n.body = a.body;
+        if (a.append) n.body = (n.body ? n.body.trimEnd() + "\n" : "") + a.append;
+        n.updated = Date.now(); commit(); act(`Updated note “${n.title || "Untitled"}”`, "i-notes"); return {ok: true};
+      }
+      case "delete_note": { const n = noteById(a.note_id); if (!n) return {error: "No note with that id."}; S.notes = S.notes.filter(x => x !== n); commit(); act(`Deleted note “${n.title || "Untitled"}”`, "i-trash"); return {ok: true}; }
+      case "remember": {
+        const p = prefs(); p.memory = [...(p.memory || []), String(a.fact).slice(0, 300)].slice(-80); commit();
+        act(`Remembered: ${a.fact}`, "i-spark"); return {ok: true};
+      }
+      case "forget": {
+        const p = prefs(), w = String(a.fact).toLowerCase(), before = (p.memory || []).length;
+        p.memory = (p.memory || []).filter(m => !m.toLowerCase().includes(w) && !w.includes(m.toLowerCase()));
+        commit(); if (p.memory.length < before) act(`Forgot: ${a.fact}`, "i-trash");
+        return {ok: p.memory.length < before};
+      }
+      case "get_calendar_events": {
+        if (!Cal.live()) return {error: "Google Calendar isn't connected right now. Tell the user to tap Reconnect (or set it up in Settings › Google Calendar)."};
+        const end = (() => { const d = parseISO(a.end_date || a.start_date); d.setDate(d.getDate() + 1); return iso(d); })();
+        const list = await Cal.list(a.start_date, end);
+        return {events: list.slice(0, 200).map(e => ({event_id: e.id, calendar_id: e.calendarId, calendar: e.calendar, title: e.title, all_day: e.allDay, start: e.start, end: e.end, location: e.location || undefined}))};
+      }
+      case "add_calendar_event": case "update_calendar_event": case "delete_calendar_event": {
+        if (!Cal.live()) return {error: "Google Calendar isn't connected right now. Tell the user to tap Reconnect (or set it up in Settings › Google Calendar)."};
+        const kind = name === "add_calendar_event" ? "add" : name === "update_calendar_event" ? "update" : "delete";
+        const prop = {id: uid(), kind, args: a, status: "pending"};
+        if (prefs().calConfirm === false) { await applyProposal(prop); turn.props.push(prop); return prop.status === "done" ? {ok: true} : {error: prop.error}; }
+        turn.props.push(prop);
+        return {status: "proposed", note: "Shown to the user with a button to confirm. It isn't on their calendar until they tap it. Tell them briefly."};
+      }
+    }
+    return {error: "Unknown tool"};
+  } catch(e) { return {error: e.message}; }
+}
+async function applyProposal(p){
+  const a = p.args;
+  try {
+    if (p.kind === "add") { const ev = await Cal.create(a); p.link = ev.link; }
+    if (p.kind === "update") await Cal.update(a.calendar_id, a.event_id, a);
+    if (p.kind === "delete") await Cal.remove(a.calendar_id, a.event_id);
+    p.status = "done"; for (const k in evCache) delete evCache[k];
+  } catch(e) { p.status = "error"; p.error = e.message; }
+}
+function propText(p){
+  const a = p.args;
+  if (p.kind === "add") return `<b>${esc(a.title)}</b><span>${esc(whenLabel(a.start))}${a.end && !a.all_day && !/^\d{4}-\d{2}-\d{2}$/.test(a.start) ? ` to ${esc(new Date((a.end.length === 16 ? a.end + ":00" : a.end)).toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"}))}` : ""}${a.location ? ` · ${esc(a.location)}` : ""}${a.calendar ? ` · ${esc(a.calendar)}` : ""}</span>`;
+  if (p.kind === "update") return `<b>Change ${esc(a.title || "event")}</b><span>${a.start ? esc(whenLabel(a.start)) : ""}${a.location ? ` · ${esc(a.location)}` : ""}</span>`;
+  return `<b>Delete ${esc(a.title || "this event")}</b><span>From your Google Calendar</span>`;
+}
+
+/* ---------- chat ---------- */
+const AI = {busy: false, items: [], history: []};
+try { const c = JSON.parse(localStorage.getItem("orbit-chat") || "null"); if (c) { AI.items = c.items || []; AI.history = c.history || []; } } catch(e){}
+function saveChat(){
+  AI.items = AI.items.slice(-60); AI.history = trimHistory(AI.history, 40);
+  try { localStorage.setItem("orbit-chat", JSON.stringify({items: AI.items.map(({snap, ...x}) => x), history: AI.history})); } catch(e){}
+}
+function trimHistory(h, max){
+  if (h.length <= max) return h;
+  let i = h.length - max;
+  while (i < h.length && !(h[i].role === "user" && h[i].parts?.some(p => p.text))) i++;
+  return h.slice(i);
+}
+const snapshot = () => JSON.stringify({lists: S.lists, tasks: S.tasks, notes: S.notes, memory: prefs().memory || []});
+async function askAI(text){
+  text = text.trim(); if (!text || AI.busy) return;
+  if (!aiReady()) { toast("Add your free Gemini key in Settings › Assistant first."); openSettings(); return; }
+  const turn = {type: "ai", text: "", acts: [], props: [], snap: snapshot(), at: Date.now()};
+  AI.items.push({type: "user", text, at: Date.now()}, turn);
+  AI.history.push({role: "user", parts: [{text}]});
+  AI.busy = true; renderAI(true);
+  try {
+    for (let round = 0; round < 8; round++) {
+      const content = await gemini({contents: trimHistory(AI.history, 40), system: systemPrompt(), tools: true});
+      AI.history.push(content);
+      const t = textOf(content);
+      if (t) turn.text += (turn.text ? "\n\n" : "") + t;
+      const calls = content.parts.filter(p => p.functionCall);
+      if (!calls.length) break;
+      const responses = [];
+      for (const p of calls) responses.push({functionResponse: {name: p.functionCall.name, response: await runTool(p.functionCall.name, p.functionCall.args || {}, turn)}});
+      AI.history.push({role: "user", parts: responses});
+      renderAI(true);
+      if (round === 7) turn.text += (turn.text ? "\n\n" : "") + "I stopped there. Ask me to keep going if there's more.";
+    }
+    if (!turn.text && !turn.acts.length && !turn.props.length) turn.text = "Done.";
+  } catch(e) {
+    turn.error = e.message;
+    // drop the unanswered turn from what Gemini sees next time
+    while (AI.history.length && !(AI.history[AI.history.length - 1].role === "user" && AI.history[AI.history.length - 1].parts?.some(p => p.text))) AI.history.pop();
+    AI.history.pop();
+  }
+  if (!turn.acts.length) delete turn.snap;
+  AI.busy = false; saveChat(); renderAI(true);
+}
+function undoTurn(i){
+  const t = AI.items[i]; if (!t?.snap) return;
+  const s = JSON.parse(t.snap);
+  S.lists = s.lists; S.tasks = s.tasks; S.notes = s.notes; prefs().memory = s.memory;
+  ensureShape(); t.undone = true; delete t.snap; commit(); saveChat(); renderAI(); toast("Undone");
+}
+const AI_CHIPS = [
+  ["Plan my day", "Plan my day. Look at my calendar and what's due soon, then set do dates for today and tell me what to do in order."],
+  ["Plan my week", "Plan my week: check my calendar, spread my tasks across the next 7 days before their due dates, and set do dates."],
+  ["What's due soon?", "What's due in the next 7 days? Group it by day and flag anything I should start now."],
+  ["Weekly review", "Do a weekly review with me: what I finished this week, what's overdue or slipping, and what's coming up next week. Suggest what to plan."],
+  ["Break down a task", "Pick my biggest upcoming assignment and break it into steps, with do dates before it's due."],
+  ["Remember something", "Remember that "],
+];
+function renderAI(scroll){
+  const log = $("#aiLog");
+  $(".ai-dock").hidden = !aiReady();
+  if (!aiAllowed) { log.innerHTML = `<div class="empty"><h3>Assistant</h3><p>Open Orbit at your site to use the assistant.</p></div>`; $("#aiChips").innerHTML = ""; return; }
+  if (!aiReady()) {
+    log.innerHTML = `<div class="ai-setup">
+      <div class="ai-orb">${icon("i-spark")}</div>
+      <h3>Meet your assistant</h3>
+      <p>Orbit can add assignments, plan your days around your classes, schedule things on your Google Calendar, and remember anything you tell it. It runs on Google Gemini's free tier.</p>
+      <ol>
+        <li>Open <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with Google.</li>
+        <li>Click <b>Create API key</b> and copy it.</li>
+        <li>Paste it here. It syncs privately to your account, so you only do this once.</li>
+      </ol>
+      <form class="ai-keyform" id="aiKeyForm"><input id="aiKeyIn" type="password" placeholder="Paste your Gemini API key" autocomplete="off" spellcheck="false"><button class="btn">Save</button></form>
+      <p class="fine">On Gemini's free tier, Google may use what you send to improve its products.</p>
+    </div>`;
+    $("#aiChips").innerHTML = ""; $("#aiFoot").textContent = ""; return;
+  }
+  if (!AI.items.length) {
+    const hr = new Date().getHours(), hi = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
+    const name = (prefs().memory || []).map(m => m.match(/(?:name is|called|i'm|i am)\s+([A-Z][a-z]+)/i)?.[1]).find(Boolean);
+    log.innerHTML = `<div class="ai-hello"><div class="ai-orb">${icon("i-spark")}</div><h3>${hi}${name ? `, ${esc(name)}` : ""}</h3>
+      <p>Tell me what's due, ask what to do next, or have me plan your week. I can see your tasks, notes and calendar.</p></div>`;
+  } else {
+    log.innerHTML = AI.items.map((it, i) => {
+      if (it.type === "user") return `<div class="msg-u"><div>${esc(it.text).replace(/\n/g, "<br>")}</div></div>`;
+      const pending = AI.busy && i === AI.items.length - 1;
+      return `<div class="msg-a">
+        ${it.acts?.length ? `<div class="acts ${it.undone ? "undone" : ""}">${it.acts.map(a => `<div class="act">${icon(a.icon || "i-check")}<span>${esc(a.text)}</span></div>`).join("")}
+          ${it.snap && !pending ? `<button class="undo" data-undo="${i}">Undo</button>` : it.undone ? `<span class="undone-l">Undone</span>` : ""}</div>` : ""}
+        ${it.props?.length ? it.props.map(p => `<div class="prop ${p.status}">${icon(p.kind === "delete" ? "i-trash" : "i-gcal")}<div class="pt">${propText(p)}${p.error ? `<em>${esc(p.error)}</em>` : ""}</div>
+          ${p.status === "pending" ? `<button class="btn" data-prop="${i}:${p.id}">${p.kind === "add" ? "Add" : p.kind === "update" ? "Change" : "Delete"}</button><button class="btn ghost" data-propskip="${i}:${p.id}">Skip</button>`
+            : p.status === "done" ? `<span class="ok">${p.kind === "add" ? "Added" : p.kind === "update" ? "Changed" : "Deleted"} ✓</span>` : p.status === "skipped" ? `<span class="fine">Skipped</span>` : `<button class="btn ghost" data-prop="${i}:${p.id}">Try again</button>`}</div>`).join("") : ""}
+        ${it.text ? `<div class="md">${md(it.text)}</div>` : ""}
+        ${it.error ? `<div class="ai-err">${esc(it.error)}</div>` : ""}
+        ${pending ? `<div class="typing"><i></i><i></i><i></i></div>` : ""}
+      </div>`;
+    }).join("");
+  }
+  $("#aiChips").innerHTML = AI.busy ? "" : AI_CHIPS.map(([l], i) => `<button class="chip" data-chip="${i}">${esc(l)}</button>`).join("");
+  $("#aiFoot").innerHTML = `${calPrompt(true)}`;
+  $("#aiSend").disabled = AI.busy;
+  if (scroll) requestAnimationFrame(() => { const sc = $("#aiScroll"); sc.scrollTop = sc.scrollHeight; });
+}
+$("#aiMode").addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target.id === "aiKeyForm") {
+    const k = $("#aiKeyIn").value.trim(); if (!k) return;
+    prefs().geminiKey = k; try { localStorage.removeItem("orbit-model"); } catch(x){} commit(); toast("Gemini key saved"); return;
+  }
+  if (e.target.id === "aiForm") { const i = $("#aiInput"); const v = i.value; i.value = ""; autosize(i); askAI(v); }
+});
+$("#aiInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("#aiForm").requestSubmit(); }
+});
+$("#aiInput").addEventListener("input", e => autosize(e.target));
+$("#aiMode").addEventListener("click", async e => {
+  const chip = e.target.closest("[data-chip]");
+  if (chip) { const [, prompt] = AI_CHIPS[+chip.dataset.chip]; if (prompt.endsWith(" ")) { const i = $("#aiInput"); i.value = prompt; i.focus(); autosize(i); } else askAI(prompt); return; }
+  const u = e.target.closest("[data-undo]"); if (u) return undoTurn(+u.dataset.undo);
+  const pr = e.target.closest("[data-prop],[data-propskip]");
+  if (pr) {
+    const [i, id] = (pr.dataset.prop || pr.dataset.propskip).split(":"); const p = AI.items[+i]?.props?.find(x => x.id === id); if (!p) return;
+    if (pr.dataset.propskip) p.status = "skipped";
+    else { pr.disabled = true; pr.textContent = "Working…"; await applyProposal(p); }
+    saveChat(); renderAI(); if (p.status === "done") { toast(p.kind === "add" ? "Added to Google Calendar" : "Google Calendar updated"); scheduleRender(); }
+  }
+});
+$("#aiNew").addEventListener("click", () => { AI.items = []; AI.history = []; saveChat(); renderAI(); $("#aiInput").focus(); });
+
+/* ================= Daily brief on Today ================= */
+let briefBusy = false;
+function getBrief(){ try { const b = JSON.parse(localStorage.getItem("orbit-brief") || "null"); return b && b.date === today() ? b : null; } catch(e){ return null; } }
+async function makeBrief(force){
+  if (briefBusy || !aiReady()) return;
+  if (!force && getBrief()) return;
+  briefBusy = true; scheduleRender();
+  const t0 = today(), soon = addDays(3);
+  const pick = f => S.tasks.filter(t => !t.done && f(t)).map(t => `${t.title}${t.due ? ` (due ${t.due})` : ""}${t.plan ? ` (do ${t.plan})` : ""}${t.important ? " ★" : ""}`);
+  let events = [];
+  if (Cal.live()) { try { events = await Cal.list(t0, addDays(1)); } catch(e){} }
+  const prompt = `Write my daily brief for ${new Date().toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric"})}.
+Calendar today: ${events.map(e => `${e.allDay ? "all day" : fmtClock(e.start)} ${e.title}`).join("; ") || "nothing / not connected"}
+Overdue: ${pick(t => t.due && t.due < t0).join("; ") || "none"}
+Planned for today: ${pick(t => t.plan === t0 || (t.plan && t.plan < t0)).join("; ") || "none"}
+Due today: ${pick(t => t.due === t0).join("; ") || "none"}
+Due in the next 3 days: ${pick(t => t.due > t0 && t.due <= soon).join("; ") || "none"}
+Starred: ${pick(t => t.important).join("; ") || "none"}
+Format: one short encouraging opening line, then 3 to 5 bullets: what matters most today in a sensible order (fit around calendar events), and one heads-up about something coming soon. Under 90 words. No headings.`;
+  try {
+    const c = await gemini({contents: [{role: "user", parts: [{text: prompt}]}], system: "You are Orbit, a warm, concise personal assistant.", maxTokens: 400});
+    localStorage.setItem("orbit-brief", JSON.stringify({date: t0, text: textOf(c)}));
+  } catch(e) { try { localStorage.setItem("orbit-brief", JSON.stringify({date: t0, text: "", error: e.message})); } catch(x){} }
+  briefBusy = false; scheduleRender();
+}
+function briefHtml(){
+  if (!aiReady()) return "";
+  let hidden = false; try { hidden = localStorage.getItem("orbit-brief-hide") === today(); } catch(e){}
+  if (hidden) return "";
+  const b = getBrief();
+  if (!b && !briefBusy) setTimeout(() => makeBrief(false), 0);
+  return `<div class="brief">
+    <div class="brief-h">${icon("i-spark")}<span>Your brief</span><span class="sp"></span>
+      <button class="ib sm" data-brief="refresh" title="Refresh" aria-label="Refresh brief">${icon("i-refresh")}</button>
+      <button class="ib sm" data-brief="hide" title="Hide for today" aria-label="Hide brief">${icon("i-x")}</button></div>
+    <div class="brief-b md">${briefBusy || !b ? `<div class="typing"><i></i><i></i><i></i></div>` : b.error ? `<p class="ai-err">${esc(b.error)}</p>` : md(b.text)}</div>
+  </div>`;
+}
+$("#listMode").addEventListener("click", e => {
+  const b = e.target.closest("[data-brief]"); if (!b) return;
+  if (b.dataset.brief === "refresh") makeBrief(true);
+  if (b.dataset.brief === "hide") { try { localStorage.setItem("orbit-brief-hide", today()); } catch(x){} render(); }
+});
+function todayTop(){ return aiAllowed ? briefHtml() + scheduleHtml(today(), "Schedule") : ""; }
+
+
 /* settings sheet */
 let sheet = null;
 $("#settingsBtn").addEventListener("click", () => openSettings());
-function openSettings(){ if (!isDesktop && !isCloud) return; sheet = {msg:"", msgType:""}; renderSheet(); if (isDesktop && G.connected && !calCalendars) loadCalendars(); }
+function openSettings(){ if (!isDesktop && !isCloud) return; if (Cal.hasClient()) Cal.preload(); sheet = {msg:"", msgType:""}; renderSheet(); if (isDesktop && G.connected && !calCalendars) loadCalendars(); }
 function closeSettings(){ if (sheet?.connecting) window.tally.gcal.cancelConnect(); sheet = null; renderSheet(); }
 async function loadCalendars(){
   try { calCalendars = await window.tally.gcal.calendars(); } catch(e) { calCalendars = []; if (sheet) { sheet.msg = e.message; sheet.msgType = "err"; } }
   renderSheet();
 }
 function renderSheet(){
+  // removing a focused, edited box fires "change" again; don't redraw inside a redraw
+  if (renderSheet.busy) return setTimeout(renderSheet, 0);
+  renderSheet.busy = true;
+  try { renderSheetNow(); } finally { renderSheet.busy = false; }
+}
+function renderSheetNow(){
   const slot = $("#sheetSlot");
   if (!sheet) { slot.innerHTML = ""; return; }
   const f = captureFocus();
   const msg = sheet.msg ? `<div class="msg ${sheet.msgType}">${esc(sheet.msg)}</div>` : "";
+  const p = prefs();
+  const aiSec = aiAllowed ? `<section><h3>${icon("i-spark")}Assistant</h3>
+      <p>Orbit's assistant runs on Google Gemini's free tier. Get a key at <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. It syncs privately to your account.</p>
+      <label class="field">Gemini API key<input id="setGemini" type="password" placeholder="${p.geminiKey ? "Saved. Paste a new one to replace it." : "Paste your key"}" autocomplete="off" spellcheck="false"></label>
+      <label class="toggle"><input type="checkbox" id="setCalConfirm" ${p.calConfirm === false ? "" : "checked"}> Ask me before the assistant changes my Google Calendar</label>
+      ${(p.memory || []).length ? `<label class="field" style="margin-top:12px">What Orbit remembers about you</label><div class="mem">${p.memory.map((m, i) => `<div class="mem-row"><span>${esc(m)}</span><button class="ib sm" data-forget="${i}" aria-label="Forget this">${icon("i-x")}</button></div>`).join("")}</div>` : `<p class="fine">Tell the assistant things to remember, like your classes or a birthday. They'll show up here.</p>`}
+      ${p.geminiKey ? `<div class="row-btns" style="margin-top:8px"><button class="btn warn" id="clearGemini">Remove key</button></div>` : ""}
+    </section>` : "";
+  const webCal = aiAllowed ? `<p>Connect your Google Calendar so Orbit shows your classes and appointments, and the assistant can add or change events. It works on every device.</p>
+      <label class="field">Google client ID<input id="setGClient" value="${esc(p.gClientId || "")}" placeholder="1234-abc.apps.googleusercontent.com" autocomplete="off" spellcheck="false"></label>
+      <div class="row-btns">${Cal.live() ? `<span class="pill">Connected</span><button class="btn ghost" id="gwDisconnect">Disconnect</button>` : `<button class="btn" id="gwConnect" ${p.gClientId ? "" : "disabled"}>${Cal.linked() ? "Reconnect" : "Connect Google Calendar"}</button>`}</div>
+      <p class="fine" style="margin-top:8px">Google signs you out of the calendar about once an hour for security. Orbit shows a Reconnect button when that happens.</p>` : "";
   let g;
   if (!isDesktop) {
-    g = `<p>Google Calendar is connected from the Tally app on your Mac. Tasks you've added to your calendar there stay linked here: when you rename one, change its date or finish it on this device, your Mac app updates the event the next time it's open.</p>`;
+    g = webCal;
   } else if (G.connected) {
     const cals = calCalendars || [], durs = [15,30,45,60,90,120];
     const hours = ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
@@ -1859,11 +2692,11 @@ function renderSheet(){
       ${msg}
       <div class="row-btns" style="margin-top:8px"><button class="btn ghost" id="gDisconnect">Disconnect</button></div>`;
   } else {
-    g = `<p>Tally adds tasks to your Google Calendar with a sign-in key you create once in Google Cloud. It's free and takes about 10 minutes.</p>
+    g = `<p>Orbit adds tasks to your Google Calendar with a sign-in key you create once in Google Cloud. It's free and takes about 10 minutes.</p>
       <ol>
-        <li>Go to <a class="link" href="#" data-ext="https://console.cloud.google.com/projectcreate">console.cloud.google.com</a> and create a project named <b>Tally</b>.</li>
+        <li>Go to <a class="link" href="#" data-ext="https://console.cloud.google.com/projectcreate">console.cloud.google.com</a> and create a project named <b>Orbit</b>.</li>
         <li>Open <a class="link" href="#" data-ext="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com">Google Calendar API</a> and click <b>Enable</b>.</li>
-        <li>Open <a class="link" href="#" data-ext="https://console.cloud.google.com/auth/branding">Google Auth Platform</a>, click <b>Get started</b>, name the app Tally, choose <b>External</b>, and finish.</li>
+        <li>Open <a class="link" href="#" data-ext="https://console.cloud.google.com/auth/branding">Google Auth Platform</a>, click <b>Get started</b>, name the app Orbit, choose <b>External</b>, and finish.</li>
         <li>Under <b>Audience</b>, add your Gmail address as a <b>Test user</b>.</li>
         <li>Under <b>Clients</b>, click <b>Create client</b>, choose <b>Desktop app</b>, and create it.</li>
         <li>Copy the <b>Client ID</b> and <b>Client secret</b> into the boxes below.</li>
@@ -1881,10 +2714,11 @@ function renderSheet(){
   slot.innerHTML = `<div class="sheet-bg" id="sheetBg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <header><h2 id="sheetTitle">Settings</h2><button class="ib" id="sheetClose" aria-label="Close settings">${icon("i-x")}</button></header>
     ${isCloud && cloudUser ? `<section><h3>Account</h3><p>Signed in as <b>${esc(cloudUser.email)}</b>. Use the same email and password on your other devices to see the same tasks.</p><div class="row-btns"><button class="btn ghost" id="acctOut">Sign out</button></div></section>` : ""}
-    <section><h3>${icon("i-gcal")}Google Calendar</h3>${g}</section>
+    ${aiSec}
+    <section><h3>${icon("i-gcal")}Google Calendar</h3>${isDesktop && aiAllowed ? webCal + `<h3 style="margin-top:18px;font-size:14px">Linked task events (Mac app)</h3>` : ""}${g}</section>
     <section><h3>Your data</h3>${isCloud
-      ? `<p>Your tasks sync through your own Firebase database${TallyCloud.projectId ? ` (<b>${esc(TallyCloud.projectId)}</b>)` : ""}. Only your account can read or change them. Each device also keeps a copy, so Tally works offline and catches up when you reconnect.</p>${isDesktop && window.tally.site ? `<div class="row-btns"><button class="btn ghost" id="siteChange">Change Tally web address</button></div>` : ""}`
-      : `<p>Tasks are saved on this Mac in Library › Application Support › Tally. Nothing leaves your Mac except the events you add to Google Calendar.</p>`}</section>
+      ? `<p>Your tasks sync through your own Firebase database${TallyCloud.projectId ? ` (<b>${esc(TallyCloud.projectId)}</b>)` : ""}. Only your account can read or change them. Each device also keeps a copy, so Orbit works offline and catches up when you reconnect.</p>${isDesktop && window.tally.site ? `<div class="row-btns"><button class="btn ghost" id="siteChange">Change Orbit web address</button></div>` : ""}`
+      : `<p>Tasks are saved on this Mac in Library › Application Support › Tally (Orbit's data folder). Nothing leaves your Mac except the events you add to Google Calendar.</p>`}</section>
   </div></div>`;
   restoreFocus(f);
 }
@@ -1907,11 +2741,18 @@ $("#sheetSlot").addEventListener("click", async e => {
   }
   if (id === "gCancel") window.tally.gcal.cancelConnect();
   if (id === "acctOut") { closeSettings(); TallyCloud.signOut(); return; }
+  if (id === "gwConnect") { await connectCalendar(); return; }
+  if (id === "gwDisconnect") { Cal.disconnect(); for (const k in evCache) delete evCache[k]; render(); renderSheet(); return; }
+  if (id === "clearGemini") { delete prefs().geminiKey; commit(); renderSheet(); return; }
+  const fg = e.target.closest("[data-forget]"); if (fg) { prefs().memory.splice(+fg.dataset.forget, 1); commit(); renderSheet(); return; }
   if (id === "siteChange") { window.tally.site.change(); return; }
   if (id === "gForget") { G = await window.tally.gcal.forget(); await refreshG(); renderSheet(); }
   if (id === "gDisconnect") { G = await window.tally.gcal.disconnect(); calCalendars = null; await refreshG(); sheet.msg = "Disconnected. Events already on your calendar stay there."; sheet.msgType = "ok"; renderSheet(); }
 });
 $("#sheetSlot").addEventListener("change", async e => {
+  if (e.target.id === "setGemini") { const k = e.target.value.trim(); if (k) { prefs().geminiKey = k; try { localStorage.removeItem("orbit-model"); } catch(x){} commit(); sheet.msg = ""; toast("Gemini key saved"); renderSheet(); } return; }
+  if (e.target.id === "setCalConfirm") { prefs().calConfirm = e.target.checked; commit(); return; }
+  if (e.target.id === "setGClient") { prefs().gClientId = e.target.value.trim(); commit(); Cal.preload(); renderSheet(); return; }
   try {
     if (e.target.id === "setCal") { const c = (calCalendars||[]).find(x => x.id === e.target.value); G = await window.tally.gcal.setPrefs({calendarId: e.target.value, calendarName: c?.name}); sheet.msg = "New events will go to " + (c?.name || "that calendar") + "."; sheet.msgType = "ok"; }
     if (e.target.id === "setTime") G = await window.tally.gcal.setPrefs({defaultTime: e.target.value});

@@ -1,6 +1,6 @@
 {
-  "name": "Tally",
-  "short_name": "Tally",
+  "name": "Orbit",
+  "short_name": "Orbit",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
