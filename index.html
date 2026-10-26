@@ -15,8 +15,8 @@
 <title>Orbit</title>
 <link rel="stylesheet" href="fonts.css">
 <script>window.TALLY_MODE = "cloud";</script>
-<script src="firebase-config.js?v=1f808f6a11"></script>
-<script src="cloud.js?v=1f808f6a11"></script>
+<script src="firebase-config.js?v=9fb57785b1"></script>
+<script src="cloud.js?v=9fb57785b1"></script>
 <style>
 /* Layout: a quiet text sidebar beside one centered reading column; Calendar swaps the column for a month grid with a day agenda. */
 :root{
@@ -2129,6 +2129,14 @@ const Cal = (() => {
   }
   async function connect(){             // call from a tap or click
     if (!clientId()) throw new Error("Add your Google client ID in Settings › Google Calendar first.");
+    if (window.tally) {                 // Mac app: Google blocks sign-in inside app windows, so use the real browser
+      if (!window.tally.googleSignIn) throw new Error("Update the Orbit Mac app to connect Google Calendar here (or use the website in Safari or Chrome).");
+      toast("Finish signing in to Google in your browser");
+      const r = await window.tally.googleSignIn({clientId: clientId(), scopes: SCOPES, consent: !flag("orbit-gcal-linked")});
+      token = r.access_token; exp = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+      try { sessionStorage.setItem("orbit-gtok", JSON.stringify({token, exp})); } catch(e){}
+      flag("orbit-gcal-linked", true); calCache = null; return;
+    }
     if (!window.google?.accounts?.oauth2) { await loadGis(); throw new Error("Google sign-in is ready. Tap Connect once more."); }
     await new Promise((res, rej) => {
       const client = google.accounts.oauth2.initTokenClient({
@@ -2672,7 +2680,7 @@ function renderSheetNow(){
       ${(p.memory || []).length ? `<label class="field" style="margin-top:12px">What Orbit remembers about you</label><div class="mem">${p.memory.map((m, i) => `<div class="mem-row"><span>${esc(m)}</span><button class="ib sm" data-forget="${i}" aria-label="Forget this">${icon("i-x")}</button></div>`).join("")}</div>` : `<p class="fine">Tell the assistant things to remember, like your classes or a birthday. They'll show up here.</p>`}
       ${p.geminiKey ? `<div class="row-btns" style="margin-top:8px"><button class="btn warn" id="clearGemini">Remove key</button></div>` : ""}
     </section>` : "";
-  const webCal = aiAllowed ? `<p>Connect your Google Calendar so Orbit shows your classes and appointments, and the assistant can add or change events. It works on every device.</p>
+  const webCal = aiAllowed ? `<p>Connect your Google Calendar so Orbit shows your classes and appointments, and the assistant can add or change events. It works on every device.</p>${isDesktop ? `<p class="fine">On the Mac, Google sign-in opens in your web browser. Your Google client needs <b>http://localhost:53682/</b> under Authorized redirect URIs.</p>` : ""}
       <label class="field">Google client ID<input id="setGClient" value="${esc(p.gClientId || "")}" placeholder="1234-abc.apps.googleusercontent.com" autocomplete="off" spellcheck="false"></label>
       <div class="row-btns">${Cal.live() ? `<span class="pill">Connected</span><button class="btn ghost" id="gwDisconnect">Disconnect</button>` : `<button class="btn" id="gwConnect" ${p.gClientId ? "" : "disabled"}>${Cal.linked() ? "Reconnect" : "Connect Google Calendar"}</button>`}</div>
       <p class="fine" style="margin-top:8px">Google signs you out of the calendar about once an hour for security. Orbit shows a Reconnect button when that happens.</p>` : "";
